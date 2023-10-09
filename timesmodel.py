@@ -154,7 +154,7 @@ class TimesBlock(nn.Module):
     def forward(self, x):
         B, T, N = x.size()
 
-        # ***** 2. Finding Amplitudes and periods *****
+        # ============= 2. Finding Amplitudes and periods ============= #
         period_list, period_weight = FFT_for_Period(x, self.k)
 
         #Res list
@@ -162,7 +162,7 @@ class TimesBlock(nn.Module):
         for i in range(self.k):
             period = period_list[i]
 
-            # ***** 3. Reshaping (padding) seq_len // period *****
+            # =========== 3. Reshaping (padding) seq_len // period =========== #
             if (self.seq_len + self.pred_len) % period != 0:
                 length = (
                                  ((self.seq_len + self.pred_len) // period) + 1) * period
@@ -172,20 +172,20 @@ class TimesBlock(nn.Module):
                 length = (self.seq_len + self.pred_len)
                 out = x
 
-            # ***** 3. Reshaping for 2D (periods * frequency) *****
+            # =========== 3. Reshaping for 2D (periods * frequency) =========== #
             out = out.reshape(B, length // period, period,
                               N).permute(0, 3, 1, 2).contiguous()
 
-            # ***** 4. 2D conv: from 1d Variation to 2d Variation *****
+            # =========== 4. 2D conv: from 1d Variation to 2d Variation =========== # 
             out = self.conv(out)
 
-            # ***** 4. reshape back *****
+            # =========== 4. reshape back =========== #
             out = out.permute(0, 2, 3, 1).reshape(B, -1, N)
 
             res.append(out[:, :(self.seq_len + self.pred_len), :])
         res = torch.stack(res, dim=-1)
 
-        # ***** 5. adaptive aggregation *****
+        # =========== 5. adaptive aggregation =========== #
         period_weight = F.softmax(period_weight, dim=1)
         period_weight = period_weight.unsqueeze(
             1).unsqueeze(1).repeat(1, T, N, 1)
@@ -195,10 +195,7 @@ class TimesBlock(nn.Module):
         res = res + x
         return res
 
-class Model(nn.Module):
-    """
-    Paper link: https://openreview.net/pdf?id=ju_Uqw384Oq
-    """
+class Model(nn.Module):    
     def __init__(self, configs):
         super(Model, self).__init__()
         self.configs = configs
