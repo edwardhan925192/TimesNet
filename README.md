@@ -6,6 +6,7 @@ The model meticulously employs the Fast Fourier Transform (FFT) to ascertain the
 # TimesNet Usage
 ```markdown
 !git clone 'https://github.com/edwardhan925192/TimsNet.git'
+
 !python 'times_traintest.py'
 --train_path 'path.csv'
 --val_path 'path.csv'
