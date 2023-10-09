@@ -4,7 +4,15 @@ The model meticulously employs the Fast Fourier Transform (FFT) to ascertain the
 
 
 # TimesNet Usage
-python 'times_traintest.py' --train_path 'path.csv' --val_path 'path.csv' --test_path 'path.csv' --lr 0.001 --epochs 1 --batch_sizes 2
+```markdown
+!python 'times_traintest.py'
+--train_path 'path.csv'
+--val_path 'path.csv'
+--test_path 'path.csv'
+--lr 0.001
+--epochs 1
+--batch_sizes 2
+```
 
 # References 
 - Haixu Wu, Tengge Hu, Yong Liu, Hang Zhou, Jianmin Wang, Mingsheng Long. **TimesNet: Temporal 2D-Variation Modeling for General Time Series Analysis**. In: International Conference on Learning Representations (ICLR), 2023.  
