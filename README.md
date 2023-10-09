@@ -5,6 +5,7 @@ The model meticulously employs the Fast Fourier Transform (FFT) to ascertain the
 
 # TimesNet Usage
 ```markdown
+!git clone 
 !python 'times_traintest.py'
 --train_path 'path.csv'
 --val_path 'path.csv'
