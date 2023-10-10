@@ -28,5 +28,20 @@ class TimesNetDataset(Dataset):
             target_data = self.data_array[start_idx+self.sequence_length:start_idx+self.sequence_length+self.prediction_length]
             return input_data, target_data
 
+# ==================== Anomaly detection ==================== #
+class TimesNetAnomalyDataset(Dataset):
+    def __init__(self, data_array, configs, train=True, window_shift=1):
+        self.data_array = torch.from_numpy(data_array).float()
+        self.sequence_length = configs.seq_len        
+        self.train = train
+        self.window_shift = configs.window_shift
+
+    def __len__(self):        
+        return (len(self.data_array)) // (self.sequence_length + self.window_shift)
+
+    def __getitem__(self, index):                
+        start_idx = index * self.window_shift
+        return self.data_array[start_idx:start_idx+self.sequence_length]
+               
 
 
