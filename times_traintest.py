@@ -63,7 +63,7 @@ def train_model(model, train, validation, learning_rate, num_epochs, batch_sizes
     
             scheduler.step()
             
-    elif args.task == 'short_term_forecast':
+    elif args.task == 'anomaly_detection':
         for epoch in range(num_epochs):
             model.train()
             total_loss = 0
