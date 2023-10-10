@@ -10,7 +10,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 from times_config import configs
 from timesmodel import Model
-from times_dataset import TimesNetDataset
+from times_dataset import TimesNetDataset,TimesNetAnomalyDataset
 import json
 import pandas as pd
 
@@ -21,37 +21,63 @@ def train_model(model, train, validation, learning_rate, num_epochs, batch_sizes
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = CosineAnnealingLR(optimizer, T_max=num_epochs)
 
-    train_dataset = TimesNetDataset(np.array(train), configs, train=True)
-    train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
+    
+    # ========================== DATASETS (Task_type) ========================== # 
+    if args.task == 'short_term_forecast':
+        train_dataset = TimesNetDataset(np.array(train), configs, train=True)    
+        train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
+        val_dataset = TimesNetDataset(np.array(validation), configs, train=True)
+        val_loader = DataLoader(val_dataset, batch_size=batch_sizes, shuffle=False)
+        
+    elif args.task == 'anomaly_detection':
+        train_dataset = TimesNetAnomalyDataset(np.array(train), configs)    
+        train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
+    # =========================================================================== #
 
-    val_dataset = TimesNetDataset(np.array(validation), configs, train=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_sizes, shuffle=False)
 
-    for epoch in range(num_epochs):
-        model.train()
-        total_loss = 0
-        for batch_data, batch_target in tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs}"):
-            batch_data, batch_target = batch_data.to(device), batch_target.to(device)
-            optimizer.zero_grad()
-            outputs = model(batch_data)
-            loss = criterion(outputs, batch_target)
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
-
-        # Validation step
-        model.eval()
-        val_loss = 0
-        with torch.no_grad():
-            for batch_data, batch_target in val_loader:
+    # ========================== TRAIN (Task_type) ========================== # 
+    if args.task == 'short_term_forecast':
+        for epoch in range(num_epochs):
+            model.train()
+            total_loss = 0
+            for batch_data, batch_target in tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs}"):
                 batch_data, batch_target = batch_data.to(device), batch_target.to(device)
+                optimizer.zero_grad()
                 outputs = model(batch_data)
                 loss = criterion(outputs, batch_target)
-                val_loss += loss.item()
-
-        print(f"Epoch {epoch + 1}/{num_epochs}, Training Loss: {total_loss / len(train_loader)}, Validation Loss: {val_loss / len(val_loader)}")
-
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+    
+            # Validation step
+            model.eval()
+            val_loss = 0
+            with torch.no_grad():
+                for batch_data, batch_target in val_loader:
+                    batch_data, batch_target = batch_data.to(device), batch_target.to(device)
+                    outputs = model(batch_data)
+                    loss = criterion(outputs, batch_target)
+                    val_loss += loss.item()
+    
+            print(f"Epoch {epoch + 1}/{num_epochs}, Training Loss: {total_loss / len(train_loader)}, Validation Loss: {val_loss / len(val_loader)}")
+    
+            scheduler.step()
+            
+    elif args.task == 'short_term_forecast':
+        for epoch in range(num_epochs):
+            model.train()
+            total_loss = 0
+            for batch_data in tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs}"):
+                batch_data = batch_data.to(device)
+                optimizer.zero_grad()
+                outputs = model(batch_data)
+                loss = criterion(outputs, batch_data)
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+                
         scheduler.step()
+    # =========================================================================== #
 
 def test_model(model, test,batch_sizes):
     criterion = nn.MSELoss()
