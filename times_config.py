@@ -1,9 +1,13 @@
 # config.py
 class Config:
     def __init__(self):
-        self.task_name = "short_term_forecast"
+        self.task_name = "short_term_forecast" #'anomaly_detection'
+        # =================== DATASETS ================== # 
         self.seq_len = 168    #예측에 사용할 sequence 
+        self.window_shift = 1        
         self.enc_in = 4       #예측 feature
+
+        # ================== MODEL ====================== #  
         self.d_model = 32     #Embedding dimension
         self.top_k = 5        #FFT frequency
         self.d_ff = 32        #Output layer dimension
