@@ -7,12 +7,12 @@ The model meticulously employs the Fast Fourier Transform (FFT) to ascertain the
 ```markdown
 !git clone 'https://github.com/edwardhan925192/TimsNet.git'
 
-!python 'times_traintest.py'
---train_path 'path.csv'
---val_path 'path.csv'
---test_path 'path.csv'
---lr 0.001
---epochs 1
+!python 'times_traintest.py' \
+--train_path 'path.csv'\
+--val_path 'path.csv'\
+--test_path 'path.csv'\
+--lr 0.001\
+--epochs 1\
 --batch_sizes 2
 ```
 
