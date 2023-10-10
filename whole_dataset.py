@@ -30,14 +30,13 @@ class TimesNetDataset(Dataset):
 
 # ==================== Anomaly detection ==================== #
 class TimesNetAnomalyDataset(Dataset):
-    def __init__(self, data_array, configs, train=True, window_shift=1):
+    def __init__(self, data_array, configs):
         self.data_array = torch.from_numpy(data_array).float()
-        self.sequence_length = configs.seq_len        
-        self.train = train
+        self.sequence_length = configs.seq_len                
         self.window_shift = configs.window_shift
 
     def __len__(self):        
-        return (len(self.data_array)) // (self.sequence_length + self.window_shift)
+        return ((len(self.data_array)- self.sequence_length) // (self.window_shift)) 
 
     def __getitem__(self, index):                
         start_idx = index * self.window_shift
