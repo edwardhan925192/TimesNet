@@ -270,7 +270,7 @@ class Model(nn.Module):
         x_enc /= stdev
 
         # embedding
-        enc_out = self.enc_embedding(x_enc, None)  # [B,T,C]
+        enc_out = self.enc_embedding(x_enc)  # [B,T,C]
         # TimesNet
         for i in range(self.layer):
             enc_out = self.layer_norm(self.model[i](enc_out))
