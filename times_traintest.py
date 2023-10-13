@@ -16,27 +16,27 @@ import pandas as pd
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def train_model(model, train, validation, learning_rate, num_epochs, batch_sizes):
+def train_model(model, train, validation, learning_rate, num_epochs, batch_sizes, configs):
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = CosineAnnealingLR(optimizer, T_max=num_epochs)
 
     
     # ========================== DATASETS (Task_type) ========================== # 
-    if args.task == 'short_term_forecast':
+    if configs.task_name == 'short_term_forecast':
         train_dataset = TimesNetDataset(np.array(train), configs, train=True)    
         train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
         val_dataset = TimesNetDataset(np.array(validation), configs, train=True)
         val_loader = DataLoader(val_dataset, batch_size=batch_sizes, shuffle=False)
         
-    elif args.task == 'anomaly_detection':
+    elif configs.task_name == 'anomaly_detection':
         train_dataset = TimesNetAnomalyDataset(np.array(train), configs)    
         train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
     # =========================================================================== #
 
 
     # ========================== TRAIN (Task_type) ========================== # 
-    if args.task == 'short_term_forecast':
+    if configs.task_name == 'short_term_forecast':
         for epoch in range(num_epochs):
             model.train()
             total_loss = 0
@@ -63,7 +63,7 @@ def train_model(model, train, validation, learning_rate, num_epochs, batch_sizes
     
             scheduler.step()
             
-    elif args.task == 'anomaly_detection':
+    elif configs.task_name == 'anomaly_detection':
         for epoch in range(num_epochs):
             model.train()
             total_loss = 0
@@ -79,7 +79,7 @@ def train_model(model, train, validation, learning_rate, num_epochs, batch_sizes
         scheduler.step()
     # =========================================================================== #
 
-def test_model(model, test,batch_sizes):
+def test_model(model, test,batch_sizes, configs):
     criterion = nn.MSELoss()
     test_dataset = TimesNetDataset(np.array(test), configs, train=False)
     test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
@@ -133,7 +133,7 @@ if __name__ == '__main__':
         train_data = load_data_from_path(train_path)
         val_data = load_data_from_path(val_path)
 
-        train_model(model, train_data, val_data, args.lr, args.epochs, args.batch_sizes)
+        train_model(model, train_data, val_data, args.lr, args.epochs, args.batch_sizes, configs)
 
     # Test the model on each test dataset
     all_predicted_values = []
@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
     for test_path in args.test_paths:
         test_data = load_data_from_path(test_path)
-        predicted_values, ground_truth_values = test_model(model, test_data, args.batch_sizes)
+        predicted_values, ground_truth_values = test_model(model, test_data, args.batch_sizes, configs)
 
         all_predicted_values.extend(predicted_values)
         all_ground_truth_values.extend(ground_truth_values)
