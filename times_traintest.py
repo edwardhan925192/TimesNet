@@ -119,22 +119,30 @@ def load_data_from_path(filepath):
 
 model = Model(configs).to(device)
 
-# Train and validate the model on each dataset in sequence
-for train_path, val_path in zip(configs.train, configs.val):
-    train_data = load_data_from_path(train_path)
-    val_data = load_data_from_path(val_path)
+if configs.csv == True:
+    # Train and validate the model on each dataset in sequence
+    for train_path, val_path in zip(configs.train, configs.val):
+        train_data = load_data_from_path(train_path)
+        val_data = load_data_from_path(val_path)
+else:
+    train_data = configs.train
+    val_data = configs.val 
 
-    train_model(model, train_data, val_data, configs.lr, configs.epochs, configs.batch_sizes, configs)
+train_model(model, train_data, val_data, configs.lr, configs.epochs, configs.batch_sizes, configs)
 
 # Test the model on each test dataset
 all_predicted_values = []
 all_ground_truth_values = []
 
-for test_path in configs.test:
-    test_data = load_data_from_path(test_path)
-    predicted_values, ground_truth_values = test_model(model, test_data, configs.batch_sizes, configs)
+if configs.csv == True:
+    for test_path in configs.test:
+        test_data = load_data_from_path(test_path)
+else:
+    test_data = configs.test
 
-    all_predicted_values.extend(predicted_values)
-    all_ground_truth_values.extend(ground_truth_values)
+predicted_values, ground_truth_values = test_model(model, test_data, configs.batch_sizes, configs)
+
+all_predicted_values.extend(predicted_values)
+all_ground_truth_values.extend(ground_truth_values)
     
 save_results(all_predicted_values, all_ground_truth_values)
