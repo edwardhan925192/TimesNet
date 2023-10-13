@@ -8,11 +8,11 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
-from times_config import configs
 from timesmodel import Model
 from times_dataset import TimesNetDataset,TimesNetAnomalyDataset
 import json
 import pandas as pd
+#from times_config import configs
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
