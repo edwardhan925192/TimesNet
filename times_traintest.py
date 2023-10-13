@@ -115,36 +115,26 @@ def load_data_from_path(filepath):
     """Load data from the given path into a pandas dataframe."""
     return pd.read_csv(filepath)
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Train and test TimesNet model.')
-    parser.add_argument('--train_paths', type=str, nargs='+', required=True, help='List of paths to training data files.')
-    parser.add_argument('--val_paths', type=str, nargs='+', required=True, help='List of paths to validation data files.')
-    parser.add_argument('--test_paths', type=str, nargs='+', required=True, help='List of paths to test data files.')
-    parser.add_argument('--lr', type=float, default=0.001, help='Learning rate for the optimizer.')
-    parser.add_argument('--epochs', type=int, default=2, help='Number of epochs for training.')
-    parser.add_argument('--batch_sizes', type=int, default=16, help='Number of batch sizes for training.')
+# ====================== Train, Test ========================= #
 
-    args = parser.parse_args()
+model = Model(configs).to(device)
 
-    model = Model(configs).to(device)
+# Train and validate the model on each dataset in sequence
+for train_path, val_path in zip(configs.train, configs.val):
+    train_data = load_data_from_path(train_path)
+    val_data = load_data_from_path(val_path)
 
-    # Train and validate the model on each dataset in sequence
-    for train_path, val_path in zip(args.train_paths, args.val_paths):
-        train_data = load_data_from_path(train_path)
-        val_data = load_data_from_path(val_path)
+    train_model(model, train_data, val_data, configs.lr, configs.epochs, configs.batch_sizes, configs)
 
-        train_model(model, train_data, val_data, args.lr, args.epochs, args.batch_sizes, configs)
+# Test the model on each test dataset
+all_predicted_values = []
+all_ground_truth_values = []
 
-    # Test the model on each test dataset
-    all_predicted_values = []
-    all_ground_truth_values = []
+for test_path in configs.test:
+    test_data = load_data_from_path(test_path)
+    predicted_values, ground_truth_values = test_model(model, test_data, configs.batch_sizes, configs)
 
-    for test_path in args.test_paths:
-        test_data = load_data_from_path(test_path)
-        predicted_values, ground_truth_values = test_model(model, test_data, args.batch_sizes, configs)
-
-        all_predicted_values.extend(predicted_values)
-        all_ground_truth_values.extend(ground_truth_values)
-        
-
-    save_results(all_predicted_values, all_ground_truth_values)
+    all_predicted_values.extend(predicted_values)
+    all_ground_truth_values.extend(ground_truth_values)
+    
+save_results(all_predicted_values, all_ground_truth_values)
