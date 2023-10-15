@@ -1,5 +1,5 @@
 class Config:
-    def __init__(self, train_dataset, val_dataset, test_dataset):
+    def __init__(self, train_dataset, test_dataset):
         # ==================== Task name ================ # 
         self.task_name = 'anomaly_detection'
 
@@ -22,8 +22,7 @@ class Config:
         self.c_out = 4        # Output feature
 
         # ================ Data instances ================ # 
-        self.train = train_dataset
-        self.val = val_dataset
+        self.train = train_dataset        
         self.test = test_dataset
 
         # ================ Training ================ # 
@@ -31,4 +30,4 @@ class Config:
         self.epochs = 1 
         self.batch_sizes = 24 
 
-configs = Config(train,val,test)
+configs = Config(train,test)
