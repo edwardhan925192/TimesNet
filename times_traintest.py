@@ -16,7 +16,7 @@ import pandas as pd
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def train_model(model, train, validation, learning_rate, num_epochs, batch_sizes, configs):
+def train_model(model, train, validation = None, learning_rate, num_epochs, batch_sizes, configs):
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = CosineAnnealingLR(optimizer, T_max=num_epochs)
@@ -24,10 +24,11 @@ def train_model(model, train, validation, learning_rate, num_epochs, batch_sizes
     
     # ========================== DATASETS (Task_type) ========================== # 
     if configs.task_name == 'short_term_forecast':
-        train_dataset = TimesNetDataset(np.array(train), configs, train=True)    
+        train_dataset = TimesNetDataset(train, configs, train=True)    
         train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
-        val_dataset = TimesNetDataset(np.array(validation), configs, train=True)
-        val_loader = DataLoader(val_dataset, batch_size=batch_sizes, shuffle=False)
+        if configs.val == True:
+            val_dataset = TimesNetDataset(validation, configs, train=True)
+            val_loader = DataLoader(val_dataset, batch_size=batch_sizes, shuffle=False)
         
     elif configs.task_name == 'anomaly_detection':
         train_dataset = TimesNetAnomalyDataset(np.array(train), configs)    
@@ -49,18 +50,21 @@ def train_model(model, train, validation, learning_rate, num_epochs, batch_sizes
                 optimizer.step()
                 total_loss += loss.item()
     
-            # Validation step
-            model.eval()
-            val_loss = 0
-            with torch.no_grad():
-                for batch_data, batch_target in val_loader:
-                    batch_data, batch_target = batch_data.to(device), batch_target.to(device)
-                    outputs = model(batch_data)
-                    loss = criterion(outputs, batch_target)
-                    val_loss += loss.item()
+            # Validation step             
+            if configs.val:
+                model.eval()
+                val_loss = 0
+                with torch.no_grad():
+                    for batch_data, batch_target in val_loader:
+                        batch_data, batch_target = batch_data.to(device), batch_target.to(device)
+                        outputs = model(batch_data)
+                        loss = criterion(outputs, batch_target)
+                        val_loss += loss.item()
     
-            print(f"Epoch {epoch + 1}/{num_epochs}, Training Loss: {total_loss / len(train_loader)}, Validation Loss: {val_loss / len(val_loader)}")
-    
+                print(f"Epoch {epoch + 1}/{num_epochs}, Training Loss: {total_loss / len(train_loader)}, Validation Loss: {val_loss / len(val_loader)}")
+            else:
+                print(f"Epoch {epoch + 1}/{num_epochs}, Training Loss: {total_loss / len(train_loader)}")
+
             scheduler.step()
             
     elif configs.task_name == 'anomaly_detection':
@@ -114,31 +118,25 @@ def save_results(predictions, true_values, filename='results.csv'):
 def load_data_from_path(filepath):
     """Load data from the given path into a pandas dataframe."""
     return pd.read_csv(filepath)
-
-# ====================== Train, Test ========================= #
+    
+# ================================================================= #
+# ====================== Train, Test MAIN ========================= #
+# ================================================================= #
 
 model = Model(configs).to(device)
 
-if configs.csv == True:
-    # Train and validate the model on each dataset in sequence
-    for train_path, val_path in zip(configs.train, configs.val):
-        train_data = load_data_from_path(train_path)
-        val_data = load_data_from_path(val_path)
+train_data = train
+
+if configs.val == True:
+    val_data = val
 else:
-    train_data = configs.train
-    val_data = configs.val 
+    val_data = None
 
 train_model(model, train_data, val_data, configs.lr, configs.epochs, configs.batch_sizes, configs)
 
 # Test the model on each test dataset
 all_predicted_values = []
 all_ground_truth_values = []
-
-if configs.csv == True:
-    for test_path in configs.test:
-        test_data = load_data_from_path(test_path)
-else:
-    test_data = configs.test
 
 predicted_values, ground_truth_values = test_model(model, test_data, configs.batch_sizes, configs)
 
