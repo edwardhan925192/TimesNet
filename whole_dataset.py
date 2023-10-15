@@ -3,6 +3,8 @@ from torch.utils.data import Dataset, DataLoader
 
 class TimesNetDataset(Dataset):
     def __init__(self, data_array, configs, train=True):
+        if isinstance(data_array, pd.DataFrame):
+            data_array = data_array.values
         self.data_array = torch.from_numpy(data_array).float()
         self.sequence_length = configs.seq_len
         self.prediction_length = configs.pred_len
