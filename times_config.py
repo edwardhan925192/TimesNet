@@ -5,10 +5,10 @@ class Config:
 
         # Output features and c_out should be the same when the task is anomaly_detection
 
-        # =================== DATASETS ================== # 
-        self.seq_len = 24    #예측에 사용할 sequence 
+        # =================== Datasets Shape================== # 
+        self.seq_len = 24    
         self.window_shift = 1        
-        self.enc_in = 4       #예측 feature
+        self.enc_in = 4    # Features          
 
         # ================== MODEL ====================== #  
         self.d_model = 32     # Embedding dimension
@@ -16,11 +16,13 @@ class Config:
         self.d_ff = 32        # Output layer dimension
         self.num_kernels = 6  # inception block에서 사용될 커널숫자 
         self.dropout = 0    
-        self.e_layers = 1     # Timeblock 층 수 
-        self.label_len = 24  # 예측할 sequence 
-        self.pred_len = 24   # 예측할 sequence
-        self.c_out = 4        # Output feature
+        self.e_layers = 1     # num Timeblock 
+        self.label_len = 24  # 예측할 sequence                 
 
+        # ================= Output shape ================= # 
+        self.pred_len = 24  
+        self.c_out = 4        # Output feature
+        
         # ================ Training ================ # 
         self.val == False
         self.lr = 0.001
