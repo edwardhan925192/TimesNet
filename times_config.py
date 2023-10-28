@@ -24,7 +24,7 @@ class Config:
         self.c_out = 4        # Output feature
         
         # ================ Training ================ # 
-        self.val == False
+        self.val = False
         self.lr = 0.001
         self.epochs = 1 
         self.batch_sizes = 24 
