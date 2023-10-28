@@ -9,14 +9,14 @@ from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 from timesmodel import Model
-from times_dataset import TimesNetDataset,TimesNetAnomalyDataset
+from whole_dataset import TimesNetDataset,TimesNetAnomalyDataset
 import json
 import pandas as pd
 #from times_config import configs
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def train_model(model, train, validation = None, learning_rate, num_epochs, batch_sizes, configs):
+def train_model(model, train, learning_rate, num_epochs, batch_sizes, configs, validation = None):
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = CosineAnnealingLR(optimizer, T_max=num_epochs)
@@ -132,7 +132,7 @@ if configs.val == True:
 else:
     val_data = None
 
-train_model(model, train_data, val_data, configs.lr, configs.epochs, configs.batch_sizes, configs)
+train_model(model, train_data, configs.lr, configs.epochs, configs.batch_sizes, configs, val_data)
 
 # Test the model on each test dataset
 all_predicted_values = []
