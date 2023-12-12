@@ -5,7 +5,7 @@ import pandas as pd
 class TimeSeriesDataset(Dataset):
     def __init__(self, dataframe, sequence_length, prediction_length, target_column):
         """
-        Initialize the dataset with a pandas DataFrame.
+        Takes single data frame and return sequence length and targets(single) 
 
         Parameters:
         dataframe (pd.DataFrame): The input DataFrame.
@@ -45,35 +45,38 @@ class TimeSeriesDataset(Dataset):
 
         return input_sequence, target_sequence
 
-import torch
-from torch.utils.data import Dataset, DataLoader
-import pandas as pd
-
 class TimeSeries_ValTestDataset(Dataset):
-    def __init__(self, dataframe, sequence_length, batch_size):
+    def __init__(self, dataframe, validation_df, target_column, sequence_length, batch_size, is_test):
         """
-        Initialize the dataset with a pandas DataFrame for testing.
+        Initialize the dataset with a pandas DataFrame for testing and validation.
 
         Parameters:
         dataframe (pd.DataFrame): The input DataFrame.
+        validation_df (pd.DataFrame): The validation DataFrame.
+        target_column (str): The name of the target column in the validation DataFrame.
         sequence_length (int): The length of the input sequences.
         batch_size (int): The number of sequences per batch.
+        is_test (bool): Flag to indicate if the dataset is for testing (True) or validation (False).
         """
         self.dataframe = dataframe
+        self.validation_df = validation_df
+        self.target_column = target_column
         self.sequence_length = sequence_length
         self.batch_size = batch_size
+        self.is_test = is_test
         self.data_tensor = torch.tensor(self.dataframe.values).float()
+        if not is_test:
+            self.target_tensor = torch.tensor(self.validation_df[self.target_column].values).float()
 
     def __len__(self):
         """
         Return the total number of samples available in the dataset.
         """
-        # Ensure the length is the same as the batch size
         return self.batch_size
 
     def __getitem__(self, index):
         """
-        Generate one sample of data for testing.
+        Generate one sample of data for testing or validation.
         """
         # Calculate the start index for each sequence
         total_length = len(self.dataframe)
@@ -83,20 +86,12 @@ class TimeSeries_ValTestDataset(Dataset):
         # Input features (all columns)
         input_sequence = self.data_tensor[start_idx:end_idx, :]
 
-        return input_sequence
+        if self.is_test:
+            return input_sequence
+        else:
+            # Target value for validation
+            target_value = self.target_tensor[start_idx:end_idx]
+            return input_sequence, target_value
 
-def create_test_batches(dataframe, sequence_length, batch_size):
-    """
-    Create DataLoader for testing with specified batch size.
 
-    Parameters:
-    dataframe (pd.DataFrame): The input DataFrame.
-    sequence_length (int): The length of the input sequences.
-    batch_size (int): The number of sequences per batch.
 
-    Returns:
-    DataLoader: A DataLoader for the test dataset.
-    """
-    test_dataset = TimeSeries_ValTestDataset(dataframe, sequence_length, batch_size)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-    return test_loader
