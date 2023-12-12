@@ -3,11 +3,13 @@
 The model meticulously employs the Fast Fourier Transform (FFT) to ascertain the predominant frequencies, thereby facilitating a deeper understanding of the underlying patterns. To further enhance this process, the model has incorporated the sophisticated Inception block for feature extraction. This advanced mechanism ensures a comprehensive capture of both interperiod and intraperiod variations of fluctuations. By doing so, the model promises a holistic and nuanced understanding of the data, transcending traditional analytical methodologies.
 
 
-# TimesNet Usage
+# TimesNet Datasets
 ```markdown
 !git clone 'https://github.com/edwardhan925192/TimsNet.git'
 
-#train_test file everything required
+# Both train and test datasets takes dataframe
+# train datasets returns single target and n sequences
+# test datasets returns last of n batch of sequences without targets
 ```
 
 # References 
