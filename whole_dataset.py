@@ -1,43 +1,46 @@
-import torch 
-import pandas as pd 
-from torch.utils.data import Dataset, DataLoader
+import torch
+from torch.utils.data import Dataset
+import pandas as pd
 
-class TimesNetDataset(Dataset):
-    def __init__(self, data_array, configs):
-        if isinstance(data_array, pd.DataFrame):
-            data_array = data_array.values
-        self.data_array = torch.from_numpy(data_array).float()
-        self.sequence_length = configs.seq_len
-        self.prediction_length = configs.pred_len 
-        self.window_shift = configs.window_shift if hasattr(configs, 'window_shift') else 1       
+class TimeSeriesDataset(Dataset):
+    def __init__(self, dataframe, sequence_length, prediction_length, target_column):
+        """
+        Initialize the dataset with a pandas DataFrame.
 
-    def __len__(self):                
-        total_shifted_length = len(self.data_array) - self.prediction_length - (self.sequence_length - 1) * self.window_shift        
-        return (total_shifted_length - 1) // self.window_shift + 1
-        
+        Parameters:
+        dataframe (pd.DataFrame): The input DataFrame.
+        sequence_length (int): The length of the input sequences.
+        prediction_length (int): The length of the prediction sequences.
+        target_column (str): The name of the target column to predict.
+        """
+        self.dataframe = dataframe
+        self.sequence_length = sequence_length
+        self.prediction_length = prediction_length
+        self.target_column = target_column
 
+        # Convert DataFrame to a PyTorch tensor
+        self.data_tensor = torch.tensor(self.dataframe.values).float()
 
-    def __getitem__(self, index):                    
-        start_idx = index * self.window_shift
-        return (
-            self.data_array[start_idx:start_idx+self.sequence_length],
-            self.data_array[start_idx+self.sequence_length:start_idx+self.sequence_length+self.prediction_length]
-        )
-        
+        # Get the index of the target column
+        self.target_idx = self.dataframe.columns.get_loc(target_column)
 
-# ==================== Anomaly detection ==================== #
-class TimesNetAnomalyDataset(Dataset):
-    def __init__(self, data_array, configs):
-        self.data_array = torch.from_numpy(data_array).float()
-        self.sequence_length = configs.seq_len                
-        self.window_shift = configs.window_shift
+    def __len__(self):
+        """
+        Return the total number of samples available in the dataset.
+        """
+        return len(self.dataframe) - self.sequence_length - self.prediction_length + 1
 
-    def __len__(self):        
-        return ((len(self.data_array)- self.sequence_length) // (self.window_shift)) 
+    def __getitem__(self, index):
+        """
+        Generate one sample of data.
+        """
+        start_idx = index
+        end_idx = start_idx + self.sequence_length
 
-    def __getitem__(self, index):                
-        start_idx = index * self.window_shift
-        return self.data_array[start_idx:start_idx+self.sequence_length]
-               
+        # Input features (all columns)
+        input_sequence = self.data_tensor[start_idx:end_idx, :]
 
+        # Target output (only the target column)
+        target_sequence = self.data_tensor[end_idx:end_idx + self.prediction_length, self.target_idx]
 
+        return input_sequence, target_sequence
