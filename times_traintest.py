@@ -18,9 +18,12 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def train_model(model, train, target_col, learning_rate, num_epochs, batch_sizes, configs):
     '''
-    Takes trainset and validation set 
-    train and predict validation set
+    1. Takes model trainset and validation set 
+    2. Load Data with datasets
+    3. Train (schedular, criterion, optimizer) 
+    4. Predict validation set 
     '''
+    
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = CosineAnnealingLR(optimizer, T_max=num_epochs)
