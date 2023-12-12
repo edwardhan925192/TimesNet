@@ -49,11 +49,12 @@ def train_model(model, train, target_col, learning_rate, num_epochs, batch_sizes
                 optimizer.step()
                 total_loss += loss.item()
     
-            # Validation step             
+            #  =========== Validation step ================ # 
             if configs.val:
                 model.eval()
                 val_loss = 0
-                with torch.no_grad():
+                with torch.no_grad():                                
+        # ============= Validation score ================ # 
                     for batch_data, batch_target in val_loader:
                         batch_data, batch_target = batch_data.to(device), batch_target.to(device)
                         outputs = model(batch_data)
