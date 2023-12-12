@@ -16,25 +16,24 @@ import pandas as pd
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def train_model(model, train, learning_rate, num_epochs, batch_sizes, configs, validation = None):
+def train_model(model, train, target_col, learning_rate, num_epochs, batch_sizes, configs):
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = CosineAnnealingLR(optimizer, T_max=num_epochs)
-
     
     # ========================== DATASETS (Task_type) ========================== # 
     if configs.task_name == 'short_term_forecast':
-        train_dataset = TimesNetDataset(train, configs, train=True)    
-        train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
-        if configs.val == True:
-            val_dataset = TimesNetDataset(validation, configs, train=True)
-            val_loader = DataLoader(val_dataset, batch_size=batch_sizes, shuffle=False)
+        train_dataset = TimesNetDataset(train, configs, target_col, train=True)    
+        train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)        
+
+    if configs.val: 
+        val_dataset = TimesNetDataset_valtest(train, configs, target_col, train=True)    
+        val_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)        
         
     elif configs.task_name == 'anomaly_detection':
         train_dataset = TimesNetAnomalyDataset(np.array(train), configs)    
         train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
     # =========================================================================== #
-
 
     # ========================== TRAIN (Task_type) ========================== # 
     if configs.task_name == 'short_term_forecast':
