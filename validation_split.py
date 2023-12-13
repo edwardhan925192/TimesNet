@@ -1,7 +1,7 @@
 import numpy as np 
 import pandas as pd 
 
-def split_train_validation_timeseries(df, validation_ranges, target_column, configs):
+def split_train_validation_timeseries(df, validation_ranges, target_column, seq_len):
     '''
     Takes a DataFrame and a list of validation ranges (e.g., [(800, 900), (900, 1000)])
     Suppose batch size is 100 then it returns 700 - 1000 as validation set 
@@ -23,7 +23,7 @@ def split_train_validation_timeseries(df, validation_ranges, target_column, conf
     for val_range in validation_ranges:
         # Ensure the range is valid
         start, end = val_range
-        adjusted_start = start - configs.pred_len  # Adjust start for validation
+        adjusted_start = start - seq_len  # Adjust start for validation
 
         if adjusted_start < 0 or start >= end or end > len(df):
             raise ValueError("Invalid range with adjusted start: {}-{}".format(adjusted_start, end))
