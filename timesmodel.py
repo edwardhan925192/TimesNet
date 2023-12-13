@@ -257,21 +257,16 @@ class Model(nn.Module):
 
 
     def forecast(self, x_enc):
-        # Normalization from Non-stationary Transformer
-        # Split x_enc into all columns except the last one and the last column
-        x_enc_except_last = x_enc[:, :-1]
-        last_column = x_enc[:, -1:]
+        # Normalization from Non-stationary Transformer        
+        x_enc = x_enc[:, :]        
 
         # Calculate means and stdev for all columns except the last one
-        means = x_enc_except_last.mean(1, keepdim=True).detach()
-        x_enc_except_last = x_enc_except_last - means
+        means = x_enc.mean(1, keepdim=True).detach()
+        x_enc = x_enc - means
         stdev = torch.sqrt(
-            torch.var(x_enc_except_last, dim=1, keepdim=True, unbiased=False) + 1e-5)
-        x_enc_except_last /= stdev
-
-        # Concatenate the normalized part with the unnormalized last column
-        x_enc_normalized = torch.cat((x_enc_except_last, last_column), dim=1)
-
+            torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5)
+        x_enc /= stdev        
+        x_enc_normalized = x_enc
 
         # embedding
         enc_out = self.enc_embedding(x_enc)  # [B,T,C]
