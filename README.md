@@ -11,7 +11,20 @@ The model meticulously employs the Fast Fourier Transform (FFT) to ascertain the
 # train datasets returns single target and n sequences
 # test datasets returns last of n batch of sequences without targets
 ```
+# TimesNet Sample Usage
+```markdown
+df_train_ = df_train[0]
+df_validation = df_val_train[0]
+df_validation_target = pd.DataFrame(df_val_target[0])
+target_col = '평균기온'
+learning_rate = 0.01
+num_epochs = 10
+batch_sizes = 12
+configs = configs
+model = None 
 
+timesnetmain(model,df_train_, df_validation, df_validation_target, target_col, learning_rate, num_epochs, batch_sizes, configs)
+```
 # References 
 - Haixu Wu, Tengge Hu, Yong Liu, Hang Zhou, Jianmin Wang, Mingsheng Long. **TimesNet: Temporal 2D-Variation Modeling for General Time Series Analysis**. In: International Conference on Learning Representations (ICLR), 2023.  
 
