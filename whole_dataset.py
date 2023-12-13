@@ -87,3 +87,44 @@ class TimeSeries_ValDataset(Dataset):
         target_sequence = self.data_tensor[end_idx:end_idx + self.prediction_length, self.target_idx]
 
         return input_sequence, target_sequence
+
+class TimeSeries_TestDataset(Dataset):
+    def __init__(self, dataframe, sequence_length, batch_size):
+        """
+        Initialize the dataset with a pandas DataFrame for testing.
+
+        Parameters:
+        dataframe (pd.DataFrame): The input DataFrame.
+        sequence_length (int): The length of the input sequences.
+        batch_size (int): The number of sequences to return from the end of the DataFrame.
+        """
+        self.dataframe = dataframe
+        self.sequence_length = sequence_length
+        self.batch_size = batch_size
+
+        # Convert DataFrame to a PyTorch tensor
+        self.data_tensor = torch.tensor(self.dataframe.values).float()
+
+    def __len__(self):
+        """
+        Return the total number of samples available in the dataset.
+        """
+        return self.batch_size
+
+    def __getitem__(self, index):
+        """
+        Generate one sample of data for testing.
+        """
+        # Calculate the start index for each sequence
+        total_length = len(self.dataframe)
+        start_idx = total_length - self.sequence_length - self.batch_size + 1 + index
+        end_idx = start_idx + self.sequence_length
+
+        # Ensure the index is within the bounds of the dataframe
+        if start_idx < 0 or end_idx > total_length:
+            raise IndexError("Index out of bounds for sequence generation")
+
+        # Input features (all columns)
+        input_sequence = self.data_tensor[start_idx:end_idx, :]
+
+        return input_sequence
