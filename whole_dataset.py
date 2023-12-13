@@ -89,8 +89,8 @@ class TimeSeries_ValTestDataset(Dataset):
         if self.is_test:
             return input_sequence
         else:
-            # Target value for validation
-            target_value = self.target_tensor[start_idx:end_idx]
+            # Target value for validation always using the whole tensor 
+            target_value = self.target_tensor[:]
             return input_sequence, target_value
 
 
