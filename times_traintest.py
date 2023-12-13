@@ -33,7 +33,7 @@ def train_model(model, df_train, df_validation, df_validation_target, target_col
         train_dataset = TimesNetDataset(df_train, configs.seq_len, configs.pred_len, target_col)
         train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)        
         
-        val_dataset = TimesNetDataset_valtest(df_validation, df_validation_target,target_col, configs.seq_length, configs.pred_length  is_test=False)    
+        val_dataset = TimesNetDataset_valtest(df_validation, df_validation_target,target_col, configs.seq_length, configs.pred_length,  is_test=False)    
         val_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)                        
 
     # ========================== TRAIN (Task_type) ========================== # 
