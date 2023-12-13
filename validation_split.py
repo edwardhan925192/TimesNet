@@ -1,3 +1,6 @@
+import pandas as pd 
+import numpy as np 
+
 def split_train_validation_timeseries(df, validation_ranges, target_column):
     '''
     Takes a DataFrame and a list of validation ranges (e.g., [(800, 900), (900, 1000)])
