@@ -9,14 +9,14 @@ from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 from timesmodel import Model
-from whole_dataset import TimesNetDataset,TimesNetAnomalyDataset
+from whole_dataset import TimeSeriesDataset,TimeSeries_ValTestDataset
 import json
 import pandas as pd
 #from times_config import configs
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def train_model(model, train, target_col, learning_rate, num_epochs, batch_sizes, configs):
+def train_model(model, df_train, df_validation, df_validation_target, target_col, learning_rate, num_epochs, batch_sizes, configs):
     '''
     1. Takes model trainset and validation set 
     2. Load Data with datasets
@@ -32,14 +32,10 @@ def train_model(model, train, target_col, learning_rate, num_epochs, batch_sizes
     if configs.task_name == 'short_term_forecast':
         train_dataset = TimesNetDataset(train, configs, target_col, train=True)    
         train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)        
-
-    if configs.val: 
-        val_dataset = TimesNetDataset_valtest(train, configs, target_col, train=True)    
-        val_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)        
         
-    elif configs.task_name == 'anomaly_detection':
-        train_dataset = TimesNetAnomalyDataset(np.array(train), configs)    
-        train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
+        val_dataset = TimesNetDataset_valtest(train, configs, target_col, train=True)    
+        val_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)                
+    
     # =========================================================================== #
 
     # ========================== TRAIN (Task_type) ========================== # 
@@ -129,17 +125,10 @@ def load_data_from_path(filepath):
 # ================================================================= #
 # ====================== Train, Test MAIN ========================= #
 # ================================================================= #
-
-model = Model(configs).to(device)
-
-train_data = train
-
-if configs.val == True:
-    val_data = val
-else:
-    val_data = None
-
-train_model(model, train_data, configs.lr, configs.epochs, configs.batch_sizes, configs, val_data)
+def timesnetmain(Model,train_df, validation_train_df, validation_target_df, configs):
+    model = Model(configs).to(device)
+    train_data = train
+    train_model(model, train_data, configs.lr, configs.epochs, configs.batch_sizes, configs, val_data)
 
 # Test the model on each test dataset
 all_predicted_values = []
