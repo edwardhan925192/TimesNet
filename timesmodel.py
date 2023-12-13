@@ -6,9 +6,9 @@ import math
 
 #Positional embedding used in transformer
 class PositionalEmbedding(nn.Module):
-  '''
-  1. Positional information is added on top of embedded data 
-  '''
+    '''
+    1. Positional information is added on top of embedded data 
+    '''
     def __init__(self, d_model, max_len=5000):
         super(PositionalEmbedding, self).__init__()
 
@@ -37,38 +37,39 @@ class PositionalEmbedding(nn.Module):
 
 # ================= Token embedding ================= #
 class TokenEmbedding(nn.Module):
-  '''
-  each are single tokens 
-  [t11, t12, t13]
-  [t21, t22, t23]
 
-  1. Takes (batchsize, sequence_length, channels)
-  2. permute for 1d conv (batchsize, channels, sequence_length)
-  3. embed whole features into d_model dimension  
-  4. return (batchsize, sequence_length, d_channels)
-  '''
+    '''
+    each are single tokens 
+    [t11, t12, t13]
+    [t21, t22, t23]
 
-  def __init__(self, c_in, d_model):
-    super(TokenEmbedding, self).__init__()
-    padding = 1 if torch.__version__ >= '1.5.0' else 2
-    self.tokenConv = nn.Conv1d(in_channels=c_in, out_channels=d_model,
-                                kernel_size=3, padding=padding, padding_mode='circular', bias=False)
+    1. Takes (batchsize, sequence_length, channels)
+    2. permute for 1d conv (batchsize, channels, sequence_length)
+    3. embed whole features into d_model dimension  
+    4. return (batchsize, sequence_length, d_channels)
+    '''
 
-#initializing
-    for m in self.modules():
-      if isinstance(m, nn.Conv1d):
-        nn.init.kaiming_normal_(
-            m.weight, mode='fan_in', nonlinearity='leaky_relu')
+    def __init__(self, c_in, d_model):
+      super(TokenEmbedding, self).__init__()
+      padding = 1 if torch.__version__ >= '1.5.0' else 2
+      self.tokenConv = nn.Conv1d(in_channels=c_in, out_channels=d_model,
+                                  kernel_size=3, padding=padding, padding_mode='circular', bias=False)
 
-  def forward(self, x):
-    x = self.tokenConv(x.permute(0, 2, 1)).transpose(1, 2)
-    return x
+  #initializing
+      for m in self.modules():
+        if isinstance(m, nn.Conv1d):
+          nn.init.kaiming_normal_(
+              m.weight, mode='fan_in', nonlinearity='leaky_relu')
+
+    def forward(self, x):
+      x = self.tokenConv(x.permute(0, 2, 1)).transpose(1, 2)
+      return x
 
 # Everything is added
 class DataEmbedding(nn.Module):
-  '''
-  1. Wrapper for Positional, 1d token embedding. 
-  '''
+    '''
+    1. Wrapper for Positional, 1d token embedding. 
+    '''
     def __init__(self, c_in, d_model, dropout=0.1): #embed_type='fixed', freq='h',
         super(DataEmbedding, self).__init__()
 
@@ -150,9 +151,9 @@ class Inception_Block_V2(nn.Module):
         return res
 
 def FFT_for_Period(x, k=2):
-  '''
-  There are index amount of fft periods for the data 
-  '''
+    '''
+    There are index amount of fft periods for the data 
+    '''
     # [B, T, C]
     xf = torch.fft.rfft(x, dim=1)
 
