@@ -31,4 +31,4 @@ def split_train_validation_timeseries(df, validation_ranges, target_column):
         train_dfs.append(train_df)
         validation_dfs.append(validation_df)
 
-    return train_dfs,traindfs, validation_dfs
+    return train_dfs,train_dfs, validation_dfs
