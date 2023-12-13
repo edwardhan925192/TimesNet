@@ -23,10 +23,6 @@ class Config:
         self.pred_len = 24  
         self.c_out = 4        # Output feature
         
-        # ================ Training ================ # 
-        self.val = False
-        self.lr = 0.001
-        self.epochs = 1 
-        self.batch_sizes = 24 
+
 
 configs = Config()
