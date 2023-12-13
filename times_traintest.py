@@ -30,13 +30,11 @@ def train_model(model, df_train, df_validation, df_validation_target, target_col
     
     # ========================== DATASETS (Task_type) ========================== # 
     if configs.task_name == 'short_term_forecast':
-        train_dataset = TimesNetDataset(train, configs, target_col, train=True)    
+        train_dataset = TimesNetDataset(df_train, configs.seq_len, configs.pred_len, target_col)
         train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)        
         
-        val_dataset = TimesNetDataset_valtest(train, configs, target_col, train=True)    
-        val_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)                
-    
-    # =========================================================================== #
+        val_dataset = TimesNetDataset_valtest(df_validation, df_validation_target,target_col, configs.seq_length, configs.pred_length  is_test=False)    
+        val_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)                        
 
     # ========================== TRAIN (Task_type) ========================== # 
     if configs.task_name == 'short_term_forecast':
@@ -53,11 +51,10 @@ def train_model(model, df_train, df_validation, df_validation_target, target_col
                 total_loss += loss.item()
     
             #  =========== Validation step ================ # 
-            if configs.val:
+            
                 model.eval()
                 val_loss = 0
-                with torch.no_grad():                                
-        # ============= Validation score ================ # 
+                with torch.no_grad():                                        
                     for batch_data, batch_target in val_loader:
                         batch_data, batch_target = batch_data.to(device), batch_target.to(device)
                         outputs = model(batch_data)
@@ -68,7 +65,7 @@ def train_model(model, df_train, df_validation, df_validation_target, target_col
             else:
                 print(f"Epoch {epoch + 1}/{num_epochs}, Training Loss: {total_loss / len(train_loader)}")
 
-            scheduler.step()
+            scheduler.step() 
             
     elif configs.task_name == 'anomaly_detection':
         for epoch in range(num_epochs):
