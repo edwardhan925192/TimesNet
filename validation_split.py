@@ -4,7 +4,7 @@ import pandas as pd
 def split_train_validation_timeseries(df, validation_ranges, target_column, seq_len):
     '''
     Takes a DataFrame and a list of validation ranges (e.g., [(800, 900), (900, 1000)])
-    Suppose batch size is 100 then it returns 700 - 1000 as validation set 
+    Suppose sequence length is 100 then it returns 700 - 1000 as validation set so that the first prediction will be inside validation set 
     0 - 800 as training set for the first set 
     
 
