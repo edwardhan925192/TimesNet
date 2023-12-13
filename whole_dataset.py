@@ -16,8 +16,7 @@ class TimeSeriesDataset(Dataset):
         self.dataframe = dataframe
         self.sequence_length = sequence_length
         self.prediction_length = prediction_length
-        self.target_column = target_column
-
+        self.target_column = target_column        
         # Convert DataFrame to a PyTorch tensor
         self.data_tensor = torch.tensor(self.dataframe.values).float()
 
@@ -60,6 +59,7 @@ class TimeSeries_ValDataset(Dataset):
         self.sequence_length = sequence_length
         self.prediction_length = prediction_length
         self.target_column = target_column
+        self.batch_size = batch_size 
 
         # Convert DataFrame to a PyTorch tensor
         self.data_tensor = torch.tensor(self.dataframe.values).float()
@@ -71,7 +71,7 @@ class TimeSeries_ValDataset(Dataset):
         """
         Return the total number of samples available in the dataset.
         """
-        return batch_size
+        return self.batch_size
 
     def __getitem__(self, index):
         """
