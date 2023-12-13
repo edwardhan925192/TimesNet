@@ -4,8 +4,9 @@ import pandas as pd
 def split_train_validation_timeseries(df, validation_ranges, target_column, configs):
     '''
     Takes a DataFrame and a list of validation ranges (e.g., [(800, 900), (900, 1000)])
-    and returns rows previous to the validation range as training data and the target column
-    of the validation range as validation data, starting from range_start - configs.pred_len.
+    Suppose batch size is 100 then it returns 700 - 1000 as validation set 
+    0 - 800 as training set for the first set 
+    
 
     Parameters:
     df (DataFrame): The DataFrame to split.
@@ -28,10 +29,11 @@ def split_train_validation_timeseries(df, validation_ranges, target_column, conf
             raise ValueError("Invalid range with adjusted start: {}-{}".format(adjusted_start, end))
 
         # Split the DataFrame
-        validation_df = df.iloc[adjusted_start:end][target_column]
-        train_df = df.iloc[:adjusted_start]
+        validation_df = df.iloc[adjusted_start:end]  # Return the entire DataFrame for the range
+        train_df = df.iloc[:start]
 
         train_dfs.append(train_df)
         validation_dfs.append(validation_df)
 
     return train_dfs, validation_dfs
+
