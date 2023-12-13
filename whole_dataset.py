@@ -46,7 +46,7 @@ class TimeSeriesDataset(Dataset):
         return input_sequence, target_sequence
 
 class TimeSeries_ValTestDataset(Dataset):
-    def __init__(self, dataframe, validation_df, target_column, sequence_length, batch_size, is_test):
+    def __init__(self, dataframe, validation_df, target_column, sequence_length, prediction_length, is_test):
         """
         Initialize the dataset with a pandas DataFrame for testing and validation.
 
@@ -55,14 +55,14 @@ class TimeSeries_ValTestDataset(Dataset):
         validation_df (pd.DataFrame): The validation DataFrame.
         target_column (str): The name of the target column in the validation DataFrame.
         sequence_length (int): The length of the input sequences.
-        batch_size (int): The number of sequences per batch.
+        prediction_length (int): The length of the target sequences.
         is_test (bool): Flag to indicate if the dataset is for testing (True) or validation (False).
         """
         self.dataframe = dataframe
         self.validation_df = validation_df
         self.target_column = target_column
         self.sequence_length = sequence_length
-        self.batch_size = batch_size
+        self.prediction_length = prediction_length
         self.is_test = is_test
         self.data_tensor = torch.tensor(self.dataframe.values).float()
         if not is_test:
@@ -72,26 +72,19 @@ class TimeSeries_ValTestDataset(Dataset):
         """
         Return the total number of samples available in the dataset.
         """
-        return self.batch_size
+        return 1
 
     def __getitem__(self, index):
         """
         Generate one sample of data for testing or validation.
         """
-        # Calculate the start index for each sequence
-        total_length = len(self.dataframe)
-        start_idx = total_length - self.sequence_length - (self.batch_size - 1) + index
-        end_idx = start_idx + self.sequence_length
-
-        # Input features (all columns)
-        input_sequence = self.data_tensor[start_idx:end_idx, :]
+        # For testing and validation, return the last 'sequence_length' observations
+        start_idx = len(self.dataframe) - self.sequence_length
+        input_sequence = self.data_tensor[start_idx:, :]
 
         if self.is_test:
             return input_sequence
         else:
-            # Target value for validation always using the whole tensor 
-            target_value = self.target_tensor[:]
+            # For validation, return the target values for the prediction length
+            target_value = self.target_tensor[:self.prediction_length]
             return input_sequence, target_value
-
-
-
