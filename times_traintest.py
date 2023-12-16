@@ -219,7 +219,8 @@ def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test,
     # from validation get best epoch and retrain with full datasets and return the prediction of last one
     best_epoch = best_epoch + 1    
 
+    test_batch = 1
     # ===== using weight that are gained from train ===== #    
-    pred = test_model_with_weights(None, train_model_state, df_test, batch_sizes, configs, criterion)
+    pred = test_model_with_weights(None, train_model_state, df_test, test_batch, configs)
 
     return pred,train_model_state,best_epoch
