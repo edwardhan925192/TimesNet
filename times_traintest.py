@@ -60,7 +60,7 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
 
                 if outputs.shape[-1] <= 1:
                   outputs = outputs.squeeze(-1)
-
+                
                 loss = criterion(outputs, batch_target)
                 loss.backward()
                 optimizer.step()
@@ -85,8 +85,11 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
 
                         if outputs.shape[-1] <= 1:
                           outputs = outputs.squeeze(-1)
-
-                        loss = criterion(outputs, batch_target)
+                        # ========= OUTPUT ADJUSTED ======= # 
+                        outputs_adjusted = outputs[:, :batch_target.size(1)]
+                        loss = criterion(outputs_adjusted, batch_target)
+                        # ================================= # 
+                        
                         val_loss += loss.item()
 
                 total_val_loss += val_loss / len(val_loader)
