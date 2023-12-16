@@ -127,7 +127,7 @@ def test_model(model, output_type, test,target_col,learning_rate, num_epochs,bat
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.0005)
 
-    test_dataset = TimeSeries_TestDataset(test, configs.seq_len, batch_sizes)
+    test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
     test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
     
     train_dataset = TimeSeriesDataset(output_type, test, configs.seq_len, configs.pred_len, target_col)
@@ -149,7 +149,6 @@ def test_model(model, output_type, test,target_col,learning_rate, num_epochs,bat
                 loss.backward()
                 optimizer.step()
                 scheduler.step(epoch + batch_idx / len(train_loader))
-
 
     best_model_state = copy.deepcopy(model.state_dict())
     model.eval()
@@ -180,18 +179,20 @@ def timesnetmain(model,output_type,df_train, df_validation, df_test, target_col,
     pred, test_model_state = test_model(model, output_type, df_test,target_col, learning_rate, best_epoch, batch_sizes,configs, criterion)
     return pred,train_model_state, test_model_state
 
-def test_model_with_weights(model_type, state_dict, test,  batch_sizes, configs, criterion):
+def test_model_with_weights(model_type, state_dict_path, test,  batch_sizes, configs, criterion):
     '''
     Retrain the model with full datasets and make a final prediction
-    '''
-    model = Model(configs).to(device)
-     # Load the provided model state dictionary
-    model.load_state_dict(state_dict)
+    '''      
 
+    model = Model(configs).to(device)
+    # Assuming state_dict is an OrderedDict containing model weights
+    model.load_state_dict(state_dict_path)
+    
+    
     model.eval()  # Set the model to evaluation mode
 
     # Prepare the test data
-    test_dataset = TimeSeries_TestDataset(test, configs.seq_len, batch_sizes, criterion)
+    test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
     test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
 
     # Make predictions
@@ -203,6 +204,3 @@ def test_model_with_weights(model_type, state_dict, test,  batch_sizes, configs,
             predictions.extend(outputs.cpu().numpy())
 
     return predictions
-all_ground_truth_values.extend(ground_truth_values)
-    
-save_results(all_predicted_values, all_ground_truth_values)
