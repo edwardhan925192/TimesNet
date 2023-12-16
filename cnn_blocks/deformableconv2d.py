@@ -66,3 +66,45 @@ class DeformableConv2d(nn.Module):
                                           stride=self.stride,
                                           dilation=self.dilation)
         return x
+
+class DeconformableBlock(nn.Module):
+    '''
+    Similar to Inception_Block_V1, but uses Deformable Convolution layers.
+    After reshaping 1D data to 2D, it goes over Deformable Convolution layers with different kernel sizes.
+    The results are averaged and returned.
+    '''
+    def __init__(self, in_channels, out_channels, num_kernels=6, init_weight=True):
+        super(DeconformableBlock, self).__init__()
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.num_kernels = num_kernels
+        kernels = []
+
+        # Kernel size increases
+        for i in range(self.num_kernels):
+            kernels.append(DeformableConv2d(in_channels, out_channels, kernel_size=2 * i + 1, padding=i))
+        self.kernels = nn.ModuleList(kernels)
+
+        if init_weight:
+            self._initialize_weights()
+
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, DeformableConv2d):
+                # Initialization for Deformable Convolution might differ from standard Conv2d
+                m.regular_conv.apply(self._init_conv)
+
+    def _init_conv(self, conv):
+        if isinstance(conv, nn.Conv2d):
+            nn.init.kaiming_normal_(conv.weight, mode='fan_out', nonlinearity='relu')
+            if conv.bias is not None:
+                nn.init.constant_(conv.bias, 0)
+
+    def forward(self, x):
+        res_list = []
+        for kernel in self.kernels:
+            res_list.append(kernel(x))
+
+        # Average the outputs of all kernels
+        res = torch.stack(res_list, dim=-1).mean(-1)
+        return res
