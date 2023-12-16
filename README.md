@@ -32,6 +32,8 @@ configs__ = configs
 model = 'timesnet'
 df_test = train_
 output_type = 'single'
+
+pred,train_model_state,best_epoch = timesnetmodel_experiment(model,output_type,df_train_, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs)
 ```
 # References 
 - Haixu Wu, Tengge Hu, Yong Liu, Hang Zhou, Jianmin Wang, Mingsheng Long. **TimesNet: Temporal 2D-Variation Modeling for General Time Series Analysis**. In: International Conference on Learning Representations (ICLR), 2023.  
