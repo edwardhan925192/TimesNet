@@ -191,7 +191,7 @@ def test_model_with_weights(model_type, state_dict_path, test,  configs):
 
     # Prepare the test data
     test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
-    test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
     # Make predictions
     predictions = []
