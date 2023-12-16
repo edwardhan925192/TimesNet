@@ -2,6 +2,29 @@
 ![Overall purpose](https://github.com/edwardhan925192/Project3/assets/127165920/d1fb6548-e819-4ece-ba9e-e3922bba8c3e)  
 The model meticulously employs the Fast Fourier Transform (FFT) to ascertain the predominant frequencies, thereby facilitating a deeper understanding of the underlying patterns. To further enhance this process, the model has incorporated the sophisticated Inception block for feature extraction. This advanced mechanism ensures a comprehensive capture of both interperiod and intraperiod variations of fluctuations. By doing so, the model promises a holistic and nuanced understanding of the data, transcending traditional analytical methodologies.
 
+# Colab
+```markdown
+import pandas as pd
+import numpy as np
+from datetime import datetime
+from sklearn.metrics import mean_squared_error
+import os
+import pickle
+import random
+import numpy as np
+import torch
+import torch.nn.functional as F
+from torch.nn.utils import weight_norm
+import math
+import sys
+import argparse
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import CosineAnnealingLR
+from tqdm import tqdm
+import json
+```
 
 # TimesNet Datasets
 ```markdown
