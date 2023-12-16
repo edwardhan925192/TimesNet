@@ -98,7 +98,7 @@ class TimeSeries_ValDataset(Dataset):
 
         if self.output_type == 'whole':
           target_sequence = self.data_tensor[end_idx:end_idx + self.prediction_length,:]
-
+        
         return input_sequence, target_sequence
 
 class TimeSeries_TestDataset(Dataset):
