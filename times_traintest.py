@@ -5,7 +5,7 @@ import argparse
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torch.optim.lr_scheduler import CosineAnnealingLR,CosineAnnealingWarmRestarts
 from tqdm import tqdm
 from timesmodel import Model
@@ -13,6 +13,7 @@ from whole_dataset import TimeSeriesDataset,TimeSeries_ValDataset,TimeSeries_Tes
 import json
 import pandas as pd
 import copy
+import torchvision.ops
 #from times_config import configs
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -60,7 +61,7 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
 
                 if outputs.shape[-1] <= 1:
                   outputs = outputs.squeeze(-1)
-                
+
                 loss = criterion(outputs, batch_target)
                 loss.backward()
                 optimizer.step()
@@ -88,8 +89,7 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
                         # ========= OUTPUT ADJUSTED ======= # 
                         outputs_adjusted = outputs[:, :batch_target.size(1)]
                         loss = criterion(outputs_adjusted, batch_target)
-                        # ================================= # 
-                        
+                        # ================================= #                         
                         val_loss += loss.item()
 
                 total_val_loss += val_loss / len(val_loader)
@@ -182,19 +182,21 @@ def timesnetmain(model,output_type,df_train, df_validation, df_test, target_col,
     pred, test_model_state = test_model(model, output_type, df_test,target_col, learning_rate, best_epoch, batch_sizes,configs, criterion)
     return pred,train_model_state, test_model_state
 
-def test_model_with_weights(model_type, state_dict_path, test,  configs):
+def test_model_with_weights(model_type, state_dict_path, test,  batch_sizes, configs):
     '''
     Retrain the model with full datasets and make a final prediction
     '''      
 
     model = Model(configs).to(device)
     # Assuming state_dict is an OrderedDict containing model weights
-    model.load_state_dict(state_dict_path)        
+    model.load_state_dict(state_dict_path)
+    
+    
     model.eval()  # Set the model to evaluation mode
 
     # Prepare the test data
     test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
-    test_loader = DataLoader(test_dataset, 1, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
 
     # Make predictions
     predictions = []
@@ -209,7 +211,8 @@ def test_model_with_weights(model_type, state_dict_path, test,  configs):
 def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion):
     if model == 'timesnet':
       model = Model(configs).to(device)
-    
+
+    train_data = df_train
     # ===== train and validate model ===== #
     best_epoch, train_model_state = train_model(model,output_type, df_train, df_validation,  target_col, learning_rate, num_epochs, batch_sizes, configs, criterion)
 
