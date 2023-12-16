@@ -208,8 +208,7 @@ def test_model_with_weights(model_type, state_dict_path, test,  batch_sizes, con
 def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion):
     if model == 'timesnet':
       model = Model(configs).to(device)
-
-    train_data = train
+    
     # ===== train and validate model ===== #
     best_epoch, train_model_state = train_model(model,output_type, df_train, df_validation,  target_col, learning_rate, num_epochs, batch_sizes, configs, criterion)
 
