@@ -179,16 +179,14 @@ def timesnetmain(model,output_type,df_train, df_validation, df_test, target_col,
     pred, test_model_state = test_model(model, output_type, df_test,target_col, learning_rate, best_epoch, batch_sizes,configs, criterion)
     return pred,train_model_state, test_model_state
 
-def test_model_with_weights(model_type, state_dict_path, test,  batch_sizes, configs, criterion):
+def test_model_with_weights(model_type, state_dict_path, test,  configs):
     '''
     Retrain the model with full datasets and make a final prediction
     '''      
 
     model = Model(configs).to(device)
     # Assuming state_dict is an OrderedDict containing model weights
-    model.load_state_dict(state_dict_path)
-    
-    
+    model.load_state_dict(state_dict_path)        
     model.eval()  # Set the model to evaluation mode
 
     # Prepare the test data
