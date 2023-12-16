@@ -7,7 +7,7 @@ import math
 #Positional embedding used in transformer
 class PositionalEmbedding(nn.Module):
     '''
-    1. Positional information is added on top of embedded data 
+    1. Positional information is added on top of embedded data
     '''
     def __init__(self, d_model, max_len=5000):
         super(PositionalEmbedding, self).__init__()
@@ -39,13 +39,13 @@ class PositionalEmbedding(nn.Module):
 class TokenEmbedding(nn.Module):
 
     '''
-    each are single tokens 
+    each are single tokens
     [t11, t12, t13]
     [t21, t22, t23]
 
     1. Takes (batchsize, sequence_length, channels)
     2. permute for 1d conv (batchsize, channels, sequence_length)
-    3. embed whole features into d_model dimension  
+    3. embed whole features into d_model dimension
     4. return (batchsize, sequence_length, d_channels)
     '''
 
@@ -68,7 +68,7 @@ class TokenEmbedding(nn.Module):
 # Everything is added
 class DataEmbedding(nn.Module):
     '''
-    1. Wrapper for Positional, 1d token embedding. 
+    1. Wrapper for Positional, 1d token embedding.
     '''
     def __init__(self, c_in, d_model, dropout=0.1): #embed_type='fixed', freq='h',
         super(DataEmbedding, self).__init__()
@@ -83,12 +83,11 @@ class DataEmbedding(nn.Module):
         return self.dropout(x)
 
 #Positional embedding is broad casted when used in torch
-
 class Inception_Block_V1(nn.Module):
     '''
-    1. After reshaping 1D data to 2D with FFT it goes over convolution layers 
-    2. It goes through different kernel_size appended in the module lists 
-    3. Averaged and returned 
+    1. After reshaping 1D data to 2D with FFT it goes over convolution layers
+    2. It goes through different kernel_size appended in the module lists
+    3. Averaged and returned
     '''
     def __init__(self, in_channels, out_channels, num_kernels=6, init_weight=True):
         super(Inception_Block_V1, self).__init__()
@@ -97,7 +96,7 @@ class Inception_Block_V1(nn.Module):
         self.num_kernels = num_kernels
         kernels = []
 
-        # =========== Kernel size increases ========= # 
+        # =========== Kernel size increases ========= #
         for i in range(self.num_kernels):
             kernels.append(nn.Conv2d(in_channels, out_channels, kernel_size=2 * i + 1, padding=i))
         self.kernels = nn.ModuleList(kernels)
@@ -116,7 +115,7 @@ class Inception_Block_V1(nn.Module):
         for i in range(self.num_kernels):
             res_list.append(self.kernels[i](x))
 
-        # ============ Average them ============ # 
+        # ============ Average them ============ #
         res = torch.stack(res_list, dim=-1).mean(-1)
         return res
 
@@ -152,7 +151,7 @@ class Inception_Block_V2(nn.Module):
 
 def FFT_for_Period(x, k=2):
     '''
-    There are index amount of fft periods for the data 
+    There are index amount of fft periods for the data
     '''
     # [B, T, C]
     xf = torch.fft.rfft(x, dim=1)
@@ -170,16 +169,28 @@ class TimesBlock(nn.Module):
         super(TimesBlock, self).__init__()
         self.seq_len = configs.seq_len
         self.pred_len = configs.pred_len
-        self.k = configs.top_k
+        self.k = configs.top_k                                
+
+        # =============== ANALYZATION BACKBONE ================ #
 
         # parameter-efficient design
-        self.conv = nn.Sequential(
-            Inception_Block_V1(configs.d_model, configs.d_ff,
-                               num_kernels=configs.num_kernels),
-            nn.GELU(),
-            Inception_Block_V1(configs.d_ff, configs.d_model,
-                               num_kernels=configs.num_kernels)
-        )
+        if configs.cnn_type == 'inception':
+          self.conv = nn.Sequential(
+              Inception_Block_V1(configs.d_model, configs.d_ff,
+                                num_kernels=configs.num_kernels),
+              nn.GELU(),
+              Inception_Block_V1(configs.d_ff, configs.d_model,
+                                num_kernels=configs.num_kernels)
+          )
+        # ================ DECONFORMABLE BLOCK ================ # 
+        if configs.cnn_type == 'dcvn':
+          self.conv = nn.Sequential(
+              DeconformableBlock(configs.d_model, configs.d_ff,
+                                num_kernels=configs.num_kernels),
+              nn.GELU(),
+              DeconformableBlock(configs.d_ff, configs.d_model,
+                                num_kernels=configs.num_kernels)
+          )
 
     def forward(self, x):
         B, T, N = x.size()
@@ -206,7 +217,7 @@ class TimesBlock(nn.Module):
             out = out.reshape(B, length // period, period,
                               N).permute(0, 3, 1, 2).contiguous()
 
-            # =========== 4. 2D conv: from 1d Variation to 2d Variation =========== #
+            # =========== 4. 2D conv =========== #
             out = self.conv(out)
 
             # =========== 4. reshape back =========== #
@@ -224,6 +235,8 @@ class TimesBlock(nn.Module):
         # residual connection
         res = res + x
         return res
+
+# ===================== MODEL MAIN ========================== #
 
 class Model(nn.Module):
     def __init__(self, configs):
@@ -250,26 +263,28 @@ class Model(nn.Module):
             self.predict_linear = nn.Linear(
                 self.seq_len, self.pred_len + self.seq_len)
             self.projection = nn.Linear(
-                configs.d_model, configs.c_out, bias=True)	
+                configs.d_model, configs.c_out, bias=True)
 
     def forecast(self, x_enc):
-        # Calculate means and stdev for all columns except the last one
+        # Calculate means and stdev
+        # ============== Non stationary normalization ================== #
         means = x_enc.mean(1, keepdim=True).detach()
         x_enc = x_enc - means
         stdev = torch.sqrt(
             torch.var(x_enc, dim=1, keepdim=True, unbiased=False) + 1e-5)
-        x_enc /= stdev        
-        x_enc_normalized = x_enc        
+        x_enc /= stdev
+        x_enc_normalized = x_enc
 
         # embedding
         enc_out = self.enc_embedding(x_enc)  # [B,T,C]
         enc_out = self.predict_linear(enc_out.permute(0, 2, 1)).permute(
-            0, 2, 1)  # align temporal dimension        
+            0, 2, 1)  # align temporal dimension
+
 
         # TimesNet
         for i in range(self.layer):
             enc_out = self.layer_norm(self.model[i](enc_out))
-        
+
         # project back
         dec_out = self.projection(enc_out)
 
@@ -279,11 +294,10 @@ class Model(nn.Module):
                       1, self.pred_len + self.seq_len, 1))
         dec_out = dec_out + \
                   (means[:, 0, :].unsqueeze(1).repeat(
-                      1, self.pred_len + self.seq_len, 1))        
+                      1, self.pred_len + self.seq_len, 1))
         return dec_out
-
 
     def forward(self, x_enc, mask=None):
         if self.task_name == 'long_term_forecast' or self.task_name == 'short_term_forecast':
-                  dec_out = self.forecast(x_enc)                  
+                  dec_out = self.forecast(x_enc)
                   return dec_out[:, -self.pred_len:, self.target_col]  # [B, L, D]
