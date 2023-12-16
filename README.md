@@ -58,6 +58,21 @@ output_type = 'single'
 
 pred,train_model_state,best_epoch = timesnetmodel_experiment(model,output_type,df_train_, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs)
 ```
+# RUNNING with weights and configs 
+```markdown
+from times_traintest import timesnetmodel_experiment, train_model,test_model,test_model_with_weights
+
+config_path = '/content/configs13.pkl'
+model_path = '/content/timesnet13.pth'
+
+with open(config_path, 'rb') as file:
+    config_data = pickle.load(file)
+
+model_dict = torch.load(model_path)
+
+pred = test_model_with_weights(None,model_dict,train_, config_data )
+```
+
 # References 
 - Haixu Wu, Tengge Hu, Yong Liu, Hang Zhou, Jianmin Wang, Mingsheng Long. **TimesNet: Temporal 2D-Variation Modeling for General Time Series Analysis**. In: International Conference on Learning Representations (ICLR), 2023.  
 
