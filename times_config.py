@@ -13,7 +13,7 @@ class Config:
         self.enc_in = num_features    # Features
 
         # ================== MODEL ====================== #
-        self.d_model = 20     # Embedding dimension
+        self.d_model = 20     # Embedding dimension (MUST BE EVEN)
         self.top_k = 3        # FFT frequency
         self.d_ff = 20       # Output layer dimension
         self.num_kernels = 6  # inception block에서 / If using dcvn set it to 3        
