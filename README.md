@@ -60,6 +60,18 @@ pred,train_model_state,best_epoch = timesnetmodel_experiment(model,output_type,d
 ```
 # RUNNING with weights and configs 
 ```markdown
+# =========== SAVING =========== #
+# Saving configs
+with open('configs13.pkl', 'wb') as f:
+    pickle.dump(configs, f)
+
+# Specify a path for saving the model state
+save_path = 'timesnet13.pth'
+
+# Save the best model state
+torch.save(train_model_state, save_path)
+
+# =========== LOADING =========== #
 from times_traintest import timesnetmodel_experiment, train_model,test_model,test_model_with_weights
 
 config_path = '/content/configs13.pkl'
