@@ -22,7 +22,7 @@ class Config:
         self.label_len = num_features   # Features
 
         self.target_col = target_name   # Name of target column
-        self.cnn_type = 'inceptionv1' # dcvn, inceptionv1, inceptionv2
+        self.cnn_type = 'inceptionv1' # dcvn, inceptionv1, inceptionv2, res_dcvn, res_inceptionv1, res_inceptionv2
 
         # ================= Output shape ================= #
         self.pred_len = 358   # Prediction length
