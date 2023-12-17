@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils import weight_norm
 import math
-from cnn_blocks.deformableconv2d import DeformableConv2d,DeconformableBlock
-from cnn_blocks.inception_blocks import Inception_Block_V1,Inception_Block_V2
+from cnn_blocks.deformableconv2d import DeformableConv2d, DeconformableBlock, Res_DeconformableBlock
+from cnn_blocks.inception_blocks import Inception_Block_V1, Inception_Block_V2, Res_Inception_Block_V1, Res_Inception_Block_V2
 
 #Positional embedding used in transformer
 class PositionalEmbedding(nn.Module):
@@ -117,6 +117,15 @@ class TimesBlock(nn.Module):
               Inception_Block_V1(configs.d_ff, configs.d_model,
                                 num_kernels=configs.num_kernels)
           )
+	
+        if configs.cnn_type == 'res_inceptionv1':
+          self.conv = nn.Sequential(
+              Res_Inception_Block_V1(configs.d_model, configs.d_ff,
+                                num_kernels=configs.num_kernels),
+              nn.GELU(),
+              Res_Inception_Block_V1(configs.d_ff, configs.d_model,
+                                num_kernels=configs.num_kernels)
+          )
 
         # ================ INCEPTION V2 BLOCK ================ #
         if configs.cnn_type == 'inceptionv2':
@@ -127,7 +136,15 @@ class TimesBlock(nn.Module):
               Inception_Block_V2(configs.d_ff, configs.d_model,
                                 num_kernels=configs.num_kernels)
           )
-
+		
+	if configs.cnn_type == 'res_inceptionv2':
+          self.conv = nn.Sequential(
+              Res_Inception_Block_V2(configs.d_model, configs.d_ff,
+                                num_kernels=configs.num_kernels),
+              nn.GELU(),
+              Res_Inception_Block_V2(configs.d_ff, configs.d_model,
+                                num_kernels=configs.num_kernels)
+          )
         # ================ DECONFORMABLE BLOCK ================ #
         if configs.cnn_type == 'dcvn':
           self.conv = nn.Sequential(
@@ -138,6 +155,15 @@ class TimesBlock(nn.Module):
                                 num_kernels=configs.num_kernels)
           )
 
+	if configs.cnn_type == 'res_dcvn':
+          self.conv = nn.Sequential(
+              Res_DeconformableBlock(configs.d_model, configs.d_ff,
+                                num_kernels=configs.num_kernels),
+              nn.GELU(),
+              Res_DeconformableBlock(configs.d_ff, configs.d_model,
+                                num_kernels=configs.num_kernels)
+          )
+	
     def forward(self, x):
         B, T, N = x.size()
 
