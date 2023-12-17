@@ -137,7 +137,7 @@ class TimesBlock(nn.Module):
                                 num_kernels=configs.num_kernels)
           )
 		
-	if configs.cnn_type == 'res_inceptionv2':
+        if configs.cnn_type == 'res_inceptionv2':
           self.conv = nn.Sequential(
               Res_Inception_Block_V2(configs.d_model, configs.d_ff,
                                 num_kernels=configs.num_kernels),
@@ -155,7 +155,7 @@ class TimesBlock(nn.Module):
                                 num_kernels=configs.num_kernels)
           )
 
-	if configs.cnn_type == 'res_dcvn':
+        if configs.cnn_type == 'res_dcvn':
           self.conv = nn.Sequential(
               Res_DeconformableBlock(configs.d_model, configs.d_ff,
                                 num_kernels=configs.num_kernels),
@@ -272,3 +272,4 @@ class Model(nn.Module):
         if self.task_name == 'long_term_forecast' or self.task_name == 'short_term_forecast':
                   dec_out = self.forecast(x_enc)
                   return dec_out[:, -self.pred_len:]  # [B, L, D]
+
