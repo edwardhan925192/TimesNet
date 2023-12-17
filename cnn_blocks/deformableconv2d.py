@@ -109,7 +109,7 @@ class Res_DeconformableBlock(nn.Module):
     The kernel size is determined by the num_kernels parameter, which represents the size of grid cells.
     '''
     def __init__(self, in_channels, out_channels, num_kernels=3, init_weight=True):
-        super(DeconformableBlock, self).__init__()
+        super(Res_DeconformableBlock, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.num_kernels = num_kernels
