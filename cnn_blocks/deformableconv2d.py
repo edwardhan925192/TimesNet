@@ -101,3 +101,46 @@ class DeconformableBlock(nn.Module):
         # Apply the deformable convolution layer
         res = self.kernel(x)
         return res
+
+class Res_DeconformableBlock(nn.Module):
+    '''
+    Uses Deformable Convolution layers with kernel sizes based on the num_kernels parameter.
+    After reshaping 1D data to 2D, it goes over a Deformable Convolution layer with a specified kernel size.
+    The kernel size is determined by the num_kernels parameter, which represents the size of grid cells.
+    '''
+    def __init__(self, in_channels, out_channels, num_kernels=3, init_weight=True):
+        super(DeconformableBlock, self).__init__()
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.num_kernels = num_kernels
+
+        # Create a single DeformableConv2d layer with kernel size based on num_kernels
+        self.kernel = DeformableConv2d(in_channels, out_channels, kernel_size=num_kernels, padding=num_kernels // 2)
+
+        # Additional 1x1 convolution for matching dimensions in residual connection
+        self.match_dimensions = nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False)
+
+        if init_weight:
+            self._initialize_weights()
+
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, DeformableConv2d):
+                # Initialization for Deformable Convolution
+                m.regular_conv.apply(self._init_conv)
+
+    def _init_conv(self, conv):
+        if isinstance(conv, nn.Conv2d):
+            nn.init.kaiming_normal_(conv.weight, mode='fan_out', nonlinearity='relu')
+            if conv.bias is not None:
+                nn.init.constant_(conv.bias, 0)
+
+    def forward(self, x):
+        # Apply the deformable convolution layer
+        res = self.kernel(x)
+
+        # Apply 1x1 convolution to input if dimensions differ
+        if self.in_channels != self.out_channels:
+            x = self.match_dimensions(x)
+
+        return res + x
