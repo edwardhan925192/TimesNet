@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils import weight_norm
 import math
-# from cnn_blocks.deformableconv2d import DeformableConv2d,DeconformableBlock
+from cnn_blocks.deformableconv2d import DeformableConv2d,DeconformableBlock
 
 #Positional embedding used in transformer
 class PositionalEmbedding(nn.Module):
