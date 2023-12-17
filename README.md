@@ -38,7 +38,6 @@ import json
 ```markdown
 seed = 0
 torch.manual_seed(seed)
-# If you are using CUDA
 
 torch.cuda.manual_seed(seed)
 torch.cuda.manual_seed_all(seed)  # for multi-GPU.
@@ -46,17 +45,20 @@ np.random.seed(seed)
 random.seed(seed)  # Replace 42 with your chosen seed number
 
 df_train_ = train_ #df_train[-1]
-df_validation = [val_f] # this should be a list
+val_f = pd.concat([df_train_.iloc[-configs.seq_len:],real_val],axis=0) #this should be a list
+df_validation = [val_f] # Currently this is set such that it shows
 target_col = '평균기온'
-learning_rate = 0.01
-num_epochs = 20 
+learning_rate = 0.001
+num_epochs = 20
 batch_sizes = 30
 configs__ = configs
 model = 'timesnet'
 df_test = train_
 output_type = 'single'
+criterion = 'mae'
+schedular_bool = True # if it is none it doesn't uses schedular if it is true it uses schedular 
 
-pred,train_model_state,best_epoch = timesnetmodel_experiment(model,output_type,df_train_, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs)
+pred,train_model_state,best_epoch = timesnetmodel_experiment(model,output_type,df_train_, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs,criterion, schedular_bool)
 ```
 # RUNNING with weights and configs 
 ```markdown
