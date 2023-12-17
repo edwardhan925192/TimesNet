@@ -36,6 +36,7 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
     training_loss_history = []
     validation_loss_history = []
 
+    # ==================== TARGET INDEX ========================== #
     col_list = list(df_train.columns)
     target_index = col_list.index(target_col) if target_col in col_list else -1
 
@@ -49,9 +50,10 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
     if criterion =='mae':
         criterion = nn.L1Loss()
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)    
+
     if schedular_bool:
-      scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.0005)
+      scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.00001)
 
     # ==================== TRAINING ========================== #
     if configs.task_name == 'short_term_forecast':
@@ -130,10 +132,13 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
 
     return training_loss_history, validation_loss_history, best_epoch, best_model_state
 
-def test_model(model, output_type, test,target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, schedular_bool):
+def test_model(model, output_type, test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, schedular_bool):
     '''
     Retrain the model with full datasets and make a final prediction
     '''
+    # ==================== TARGET INDEX ========================== #
+    col_list = list(test.columns)
+    target_index = col_list.index(target_col) if target_col in col_list else -1
 
     model_type = model
     best_model_state = None
@@ -150,7 +155,7 @@ def test_model(model, output_type, test,target_col,learning_rate, num_epochs,bat
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     if not schedular_bool:
-      scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.0005)
+      scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.00001)
 
     test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
     test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
@@ -214,10 +219,13 @@ def timesnetmain(model,output_type,df_train, df_validation, df_test, target_col,
     pred, test_model_state = test_model(model, output_type, df_test,target_col, learning_rate, best_epoch, batch_sizes,configs, criterion, schedular_bool)
     return pred,train_model_state, test_model_state
 
-def test_model_with_weights(model_type, state_dict_path, test,  batch_sizes, configs):
+def test_model_with_weights(model_type, output_type, state_dict_path, test, target_col,  batch_sizes, configs):
     '''
     Retrain the model with full datasets and make a final prediction
     '''
+    # ==================== TARGET INDEX ========================== #
+    col_list = list(test.columns)
+    target_index = col_list.index(target_col) if target_col in col_list else -1
 
     model = Model(configs).to(device)
     # Assuming state_dict is an OrderedDict containing model weights
@@ -235,23 +243,30 @@ def test_model_with_weights(model_type, state_dict_path, test,  batch_sizes, con
         for batch_test_data in test_loader:
             batch_test_data = batch_test_data.to(device)
             outputs = model(batch_test_data)
+
+            # ============= OUTPUT TYPE AND SHAPE ================= #
+            if output_type == 'single':
+              outputs = outputs[:, :, target_index]
+
+            if outputs.shape[-1] <= 1:
+              outputs = outputs.squeeze(-1)
             predictions.extend(outputs.cpu().numpy())
 
     return predictions
 
-def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
+def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, range_exp):
     if model == 'timesnet':
       model = Model(configs).to(device)
 
     train_data = df_train
     # ===== train and validate model ===== #
-    _, _, best_epoch, train_model_state = train_model(model,output_type, df_train, df_validation,  target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool)
+    _, _, best_epoch, train_model_state = train_model(model,output_type, df_train, df_validation,  target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, range_exp)
 
     # from validation get best epoch and retrain with full datasets and return the prediction of last one
     best_epoch = best_epoch + 1
 
     # ===== using weight that are gained from train ===== #
-    pred = test_model_with_weights(None, train_model_state, df_test, batch_sizes, configs)
+    pred = test_model_with_weights(None, output_type, train_model_state, df_test, target_col, batch_sizes, configs)
 
     return pred,train_model_state,best_epoch
 
@@ -290,4 +305,5 @@ def train_with_lr_range(model, output_type, df_train, df_validation, target_col,
         plt.title(f'Loss vs. Epochs at LR: {lr}')
         plt.legend()
         plt.show()
+
 
