@@ -239,13 +239,13 @@ def test_model_with_weights(model_type, state_dict_path, test,  batch_sizes, con
 
     return predictions
 
-def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, range_exp):
+def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
     if model == 'timesnet':
       model = Model(configs).to(device)
 
     train_data = df_train
     # ===== train and validate model ===== #
-    _, _, best_epoch, train_model_state = train_model(model,output_type, df_train, df_validation,  target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, range_exp)
+    _, _, best_epoch, train_model_state = train_model(model,output_type, df_train, df_validation,  target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool)
 
     # from validation get best epoch and retrain with full datasets and return the prediction of last one
     best_epoch = best_epoch + 1
