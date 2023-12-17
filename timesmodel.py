@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils import weight_norm
-from cnn_blocks.deformableconv2d import DeformableConv2d,DeconformableBlock
 import math
+# from cnn_blocks.deformableconv2d import DeformableConv2d,DeconformableBlock
 
 #Positional embedding used in transformer
 class PositionalEmbedding(nn.Module):
@@ -170,10 +170,9 @@ class TimesBlock(nn.Module):
         super(TimesBlock, self).__init__()
         self.seq_len = configs.seq_len
         self.pred_len = configs.pred_len
-        self.k = configs.top_k                                
+        self.k = configs.top_k
 
         # =============== ANALYZATION BACKBONE ================ #
-        # ================ INCEPTION V1 BLOCK ================ #
 
         # parameter-efficient design
         if configs.cnn_type == 'inceptionv1':
@@ -194,7 +193,8 @@ class TimesBlock(nn.Module):
               Inception_Block_V2(configs.d_ff, configs.d_model,
                                 num_kernels=configs.num_kernels)
           )
-        # ================ DECONFORMABLE BLOCK ================ # 
+
+        # ================ DECONFORMABLE BLOCK ================ #
         if configs.cnn_type == 'dcvn':
           self.conv = nn.Sequential(
               DeconformableBlock(configs.d_model, configs.d_ff,
@@ -257,8 +257,7 @@ class Model(nn.Module):
         self.task_name = configs.task_name
         self.seq_len = configs.seq_len
         self.label_len = configs.label_len
-        self.pred_len = configs.pred_len
-        self.target_col = configs.target_col
+        self.pred_len = configs.pred_len        
         #e_layers number of timeblock module saved in model "list"
         self.model = nn.ModuleList([TimesBlock(configs)
                                     for _ in range(configs.e_layers)])
@@ -312,4 +311,4 @@ class Model(nn.Module):
     def forward(self, x_enc, mask=None):
         if self.task_name == 'long_term_forecast' or self.task_name == 'short_term_forecast':
                   dec_out = self.forecast(x_enc)
-                  return dec_out[:, -self.pred_len:, self.target_col]  # [B, L, D]
+                  return dec_out[:, -self.pred_len:]  # [B, L, D]
