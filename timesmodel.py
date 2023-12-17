@@ -173,14 +173,25 @@ class TimesBlock(nn.Module):
         self.k = configs.top_k                                
 
         # =============== ANALYZATION BACKBONE ================ #
+        # ================ INCEPTION V1 BLOCK ================ #
 
         # parameter-efficient design
-        if configs.cnn_type == 'inception':
+        if configs.cnn_type == 'inceptionv1':
           self.conv = nn.Sequential(
               Inception_Block_V1(configs.d_model, configs.d_ff,
                                 num_kernels=configs.num_kernels),
               nn.GELU(),
               Inception_Block_V1(configs.d_ff, configs.d_model,
+                                num_kernels=configs.num_kernels)
+          )
+
+        # ================ INCEPTION V2 BLOCK ================ #
+        if configs.cnn_type == 'inceptionv2':
+          self.conv = nn.Sequential(
+              Inception_Block_V2(configs.d_model, configs.d_ff,
+                                num_kernels=configs.num_kernels),
+              nn.GELU(),
+              Inception_Block_V2(configs.d_ff, configs.d_model,
                                 num_kernels=configs.num_kernels)
           )
         # ================ DECONFORMABLE BLOCK ================ # 
