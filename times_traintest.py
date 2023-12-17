@@ -32,6 +32,9 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
 
     model_type = model
 
+    col_list = list(df_train.columns)
+    target_index = col_list.index(target_col) if target_col in col_list else -1
+
     # ==================== MODEL SELECTION ========================== #
     if model == 'timesnet':
       model = Model(configs).to(device)
@@ -41,12 +44,12 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
         criterion = nn.MSELoss()
     if criterion =='mae':
         criterion = nn.L1Loss()
-    
+
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.0005)
 
     # ==================== TRAINING ========================== #
-    if configs.task_name == 'short_term_forecast':        
+    if configs.task_name == 'short_term_forecast':
         train_dataset = TimeSeriesDataset(output_type, df_train, configs.seq_len, configs.pred_len, target_col)
         train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
 
@@ -59,8 +62,14 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
                 optimizer.zero_grad()
                 outputs = model(batch_data)
 
+                # ============== OUTPUT TYPE =============== # 
+                if output_type == 'single':
+                  outputs = outputs[:, :, target_index]                                  
+
                 if outputs.shape[-1] <= 1:
                   outputs = outputs.squeeze(-1)
+
+                # ========================================== # 
 
                 loss = criterion(outputs, batch_target)
                 loss.backward()
@@ -84,12 +93,17 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
                         batch_data, batch_target = batch_data.to(device), batch_target.to(device)
                         outputs = model(batch_data)
 
+                        # ============== OUTPUT TYPE =============== # 
+                        if output_type == 'single':
+                          outputs = outputs[:, :, target_index]                                  
+
                         if outputs.shape[-1] <= 1:
                           outputs = outputs.squeeze(-1)
-                        # ========= OUTPUT ADJUSTED ======= # 
-                        outputs_adjusted = outputs[:, :batch_target.size(1)]
+
+                        # ========= OUTPUT ADJUSTED ======= #
+                        outputs_adjusted = outputs[:, :batch_target.size(1)]                                        
                         loss = criterion(outputs_adjusted, batch_target)
-                        # ================================= #                         
+                        # ================================= #
                         val_loss += loss.item()
 
                 total_val_loss += val_loss / len(val_loader)
@@ -126,13 +140,13 @@ def test_model(model, output_type, test,target_col,learning_rate, num_epochs,bat
         criterion = nn.MSELoss()
     if criterion =='mae':
         criterion = nn.L1Loss()
-    
+
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.0005)
 
     test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
     test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
-    
+
     train_dataset = TimeSeriesDataset(output_type, test, configs.seq_len, configs.pred_len, target_col)
     train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
 
@@ -144,6 +158,10 @@ def test_model(model, output_type, test,target_col,learning_rate, num_epochs,bat
 
                 optimizer.zero_grad()
                 outputs = model(batch_data)
+
+                # ============== OUTPUT TYPE =============== # 
+                if output_type == 'single':
+                  outputs = outputs[:, :, target_index]
 
                 if outputs.shape[-1] <= 1:
                   outputs = outputs.squeeze(-1)
@@ -159,8 +177,11 @@ def test_model(model, output_type, test,target_col,learning_rate, num_epochs,bat
     with torch.no_grad():
         for batch_test_data in test_loader:
             batch_test_data = batch_test_data.to(device)
-            print(batch_test_data)
             outputs = model(batch_test_data)
+            # ============== OUTPUT TYPE =============== # 
+            if output_type == 'single':
+              outputs = outputs[:, :, target_index]
+
             predictions.extend(outputs.cpu().numpy())
 
     return predictions,best_model_state
@@ -185,13 +206,13 @@ def timesnetmain(model,output_type,df_train, df_validation, df_test, target_col,
 def test_model_with_weights(model_type, state_dict_path, test,  batch_sizes, configs):
     '''
     Retrain the model with full datasets and make a final prediction
-    '''      
+    '''
 
     model = Model(configs).to(device)
     # Assuming state_dict is an OrderedDict containing model weights
     model.load_state_dict(state_dict_path)
-    
-    
+
+
     model.eval()  # Set the model to evaluation mode
 
     # Prepare the test data
@@ -217,10 +238,9 @@ def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test,
     best_epoch, train_model_state = train_model(model,output_type, df_train, df_validation,  target_col, learning_rate, num_epochs, batch_sizes, configs, criterion)
 
     # from validation get best epoch and retrain with full datasets and return the prediction of last one
-    best_epoch = best_epoch + 1    
+    best_epoch = best_epoch + 1
 
-    test_batch = 1
-    # ===== using weight that are gained from train ===== #    
-    pred = test_model_with_weights(None, train_model_state, df_test, test_batch, configs)
+    # ===== using weight that are gained from train ===== #
+    pred = test_model_with_weights(None, train_model_state, df_test, batch_sizes, configs)
 
     return pred,train_model_state,best_epoch
