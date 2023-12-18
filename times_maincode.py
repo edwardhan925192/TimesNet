@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np 
 from times_traintest import train_model, test_model
 from times_model import Model
+from whole_dataset import TimeSeriesDataset,TimeSeries_ValDataset,TimeSeries_ValDataset
 import torch
 import torch.nn as nn
 import copy
