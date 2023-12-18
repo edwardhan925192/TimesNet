@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 from times_model import Model
 from whole_dataset import TimeSeriesDataset,TimeSeries_ValDataset,TimeSeries_TestDataset
-from schedular.schedular import initialize_schedular
+from scheduler.scheduler import initialize_scheduler
 import json
 import pandas as pd
 import copy
@@ -19,11 +19,11 @@ import matplotlib.pyplot as plt
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def train_model(model, output_type, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
+def train_model(model, output_type, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool):
     '''
     1. Takes model trainset and validation set
     2. Load Data with datasets
-    3. Train (schedular, criterion, optimizer)
+    3. Train (scheduler, criterion, optimizer)
     4. Predict validation set
     '''
 
@@ -52,9 +52,9 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     
-    # =================== Schedular initialization ======================= # 
-    if schedular_bool:      
-      schedular = initialize_schedular(optimizer, configs)
+    # =================== Scheduler initialization ======================= # 
+    if scheduler_bool:      
+      scheduler = initialize_scheduler(optimizer, configs)
 
     # ==================== TRAINING ========================== #
     if configs.task_name == 'short_term_forecast':
@@ -82,13 +82,13 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
                 optimizer.step()
                 total_loss += loss.item()
 
-                # ========== Schedular ============= #
-                if schedular_bool and configs.schedular_update_type == 'batch':
-                  schedular.step(epoch + batch_idx / len(train_loader))
+                # ========== Scheduler ============= #
+                if scheduler_bool and configs.scheduler_update_type == 'batch':
+                  scheduler.step(epoch + batch_idx / len(train_loader))
 
-            # Update Schedular after each epoch if specified
-            if schedular_bool and configs.schedular_update_type == 'epoch':
-                schedular.step()
+            # Update Scheduler after each epoch if specified
+            if scheduler_bool and configs.scheduler_update_type == 'epoch':
+                scheduler.step()
 
             average_training_loss = total_loss / len(train_loader)
 
@@ -137,7 +137,7 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
 
     return training_loss_history, validation_loss_history, best_epoch, best_model_state
 
-def test_model(model, output_type, test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, schedular_bool):
+def test_model(model, output_type, test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
     '''
     Retrain the model with full datasets and make a final prediction
     '''
@@ -159,7 +159,7 @@ def test_model(model, output_type, test, target_col,learning_rate, num_epochs,ba
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-    if not schedular_bool:
+    if not scheduler_bool:
       scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.00001)
 
     test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
