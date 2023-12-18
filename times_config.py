@@ -48,7 +48,7 @@ class Config:
 
         # ================= Scheduler Configurations ========= #
         self.scheduler_config = SchedulerConfig()
-        self.schedular_name = 'CosineAnnealingWarmRestarts' #'CosineAnnealingWarmRestarts', 'StepLR', 'ExponentialLR', 'OneCycleLR', 'CyclicLR'
-        self.schedular_type = 'batch' # epoch, batch 
+        self.scheduler_name = 'CosineAnnealingWarmRestarts' #'CosineAnnealingWarmRestarts', 'StepLR', 'ExponentialLR', 'OneCycleLR', 'CyclicLR'
+        self.scheduler_update_type = 'batch' # epoch, batch 
 
 configs = Config()
