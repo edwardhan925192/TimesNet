@@ -7,6 +7,8 @@ import torch.nn as nn
 import copy
 import matplotlib.pyplot as plt
 
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 # ====================== Train, Test MAIN ========================= #
 def timesnetmain(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
     if model == 'timesnet':
