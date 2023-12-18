@@ -2,6 +2,10 @@ import pandas as pd
 import numpy as np 
 from times_traintest import train_model, test_model
 from times_model import Model
+import torch
+import torch.nn as nn
+import copy
+import matplotlib.pyplot as plt
 
 # ====================== Train, Test MAIN ========================= #
 def timesnetmain(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
