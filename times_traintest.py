@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 from times_model import Model
 from whole_dataset import TimeSeriesDataset,TimeSeries_ValDataset,TimeSeries_TestDataset
-from schedular.schedular import initialize_scheduler
+from schedular.schedular import initialize_schedular
 import json
 import pandas as pd
 import copy
@@ -54,7 +54,7 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
     
     # =================== Schedular initialization ======================= # 
     if schedular_bool:      
-      scheduler = initialize_scheduler(optimizer, configs)
+      schedular = initialize_schedular(optimizer, configs)
 
     # ==================== TRAINING ========================== #
     if configs.task_name == 'short_term_forecast':
@@ -83,12 +83,12 @@ def train_model(model, output_type, df_train, df_validation, target_col, learnin
                 total_loss += loss.item()
 
                 # ========== Schedular ============= #
-                if schedular_bool and configs.scheduler_update_type == 'batch':
-                  scheduler.step(epoch + batch_idx / len(train_loader))
+                if schedular_bool and configs.schedular_update_type == 'batch':
+                  schedular.step(epoch + batch_idx / len(train_loader))
 
-            # Update Scheduler after each epoch if specified
-            if schedular_bool and configs.scheduler_update_type == 'epoch':
-                scheduler.step()
+            # Update Schedular after each epoch if specified
+            if schedular_bool and configs.schedular_update_type == 'epoch':
+                schedular.step()
 
             average_training_loss = total_loss / len(train_loader)
 
