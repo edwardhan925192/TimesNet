@@ -74,11 +74,6 @@ def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
     dec_out = self.forecast(x_enc, x_mark_enc, x_dec, x_mark_dec)
     return dec_out[:, -self.pred_len:, :]  # [B, L, D]
 
-
-
-
-import torch
-
 class TriangularCausalMask():
     def __init__(self, B, L, device="cpu"):
         mask_shape = [B, 1, L, L]
@@ -102,10 +97,6 @@ class ProbMask():
     @property
     def mask(self):
         return self._mask
-
-
-
-import torch.nn as nn
 
 class EncoderLayer(nn.Module):
     '''
