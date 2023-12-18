@@ -6,9 +6,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
-from torch.optim.lr_scheduler import CosineAnnealingLR,CosineAnnealingWarmRestarts
 from tqdm import tqdm
-from timesmodel import Model
+from times_model import Model
 from whole_dataset import TimeSeriesDataset,TimeSeries_ValDataset,TimeSeries_TestDataset
 from schedular.schedular import initialize_scheduler
 import json
