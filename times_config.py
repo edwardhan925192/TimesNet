@@ -14,7 +14,7 @@ class Config:
 
         # ================== MODEL ====================== #
         self.d_model = 20     # Embedding dimension
-        self.top_k = 4        # FFT frequency
+        self.top_k = 3        # FFT frequency
         self.d_ff = 20       # Output layer dimension
         self.num_kernels = 6  # inception block에서 / If using dcvn set it to 3
         self.dropout = 0.1    # Dropout rate
@@ -28,6 +28,9 @@ class Config:
         self.pred_len = 358   # Prediction length
         self.c_out = 1        # Output feature
 
-configs = Config()
+        # ================= Scheduler Configurations ========= #
+        self.scheduler_config = SchedulerConfig()
+        self.schedular_name = 'CosineAnnealingWarmRestarts' #'CosineAnnealingWarmRestarts', 'StepLR', 'ExponentialLR', 'OneCycleLR', 'CyclicLR'
+        self.schedular_type = 'batch' # epoch, batch 
 
-# pred 180 got 2.4 currently
+configs = Config()
