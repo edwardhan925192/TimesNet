@@ -1,6 +1,12 @@
+import torch.nn.functional as F
+import torch
+import torch.nn as nn
+import numpy as np
+from math import sqrt
+from einops import rearrange
+import math
 
-
-class Itrmr_Model(nn.Module):
+class I_T_Model(nn.Module):
     """
     Paper link: https://arxiv.org/abs/2310.06625
     """
