@@ -10,7 +10,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR,CosineAnnealingWarmRestar
 from tqdm import tqdm
 from timesmodel import Model
 from whole_dataset import TimeSeriesDataset,TimeSeries_ValDataset,TimeSeries_TestDataset
-from scheduler.schedular import initialize_scheduler
+from schedular.schedular import initialize_scheduler
 import json
 import pandas as pd
 import copy
