@@ -1,3 +1,5 @@
+import torch
+
 class SchedulerConfig:
     def __init__(self):
         # STARTS from lr goes down to eta_min in T_0 
