@@ -74,17 +74,19 @@ save_path = 'timesnet13.pth'
 torch.save(train_model_state, save_path)
 
 # =========== LOADING =========== #
-from times_traintest import timesnetmodel_experiment, train_model,test_model,test_model_with_weights
+from times_maincode import timesnetmodel_experiment, train_model,test_model,test_model_with_weights
 
-config_path = '/content/configs13.pkl'
-model_path = '/content/timesnet13.pth'
+config_path = '/content/TimesNet/timesnet109.pkl'
+model_path = '/content/TimesNet/timesnet109.pth'
+
+model_used = 'timesnet'
 
 with open(config_path, 'rb') as file:
     config_data = pickle.load(file)
 
 model_dict = torch.load(model_path)
 
-pred = test_model_with_weights(None,model_dict,train_, config_data )
+pred = test_model_with_weights(model_used,'single',model_dict,train_ ,'평균기온',1, config_data )
 ```
 
 # References 
