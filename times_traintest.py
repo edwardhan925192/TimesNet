@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 from times_model import Model
 from whole_dataset import TimeSeriesDataset,TimeSeries_ValDataset,TimeSeries_TestDataset
-from scheduler.scheduler import initialize_scheduler
+from schedular.scheduler import initialize_scheduler
 import json
 import pandas as pd
 import copy
