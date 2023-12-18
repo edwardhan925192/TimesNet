@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import copy
 import matplotlib.pyplot as plt
+from torch.utils.data import Dataset, Dataloader
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
