@@ -158,9 +158,10 @@ def test_model(model, output_type, test, target_col,learning_rate, num_epochs,ba
         criterion = nn.L1Loss()
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
-    if not scheduler_bool:
-      scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=10, T_mult=1, eta_min=0.00001)
+    
+    # =================== Scheduler initialization ======================= # 
+    if scheduler_bool:      
+      scheduler = initialize_scheduler(optimizer, configs)    
 
     test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
     test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
