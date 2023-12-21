@@ -6,13 +6,13 @@ from math import sqrt
 from einops import rearrange
 import math
 
-class I_T_Model(nn.Module):
+class Itransformer(nn.Module):
     """
     Paper link: https://arxiv.org/abs/2310.06625
     """
 
     def __init__(self, configs):
-        super(Model, self).__init__()
+        super(Itransformer, self).__init__()
         self.seq_len = configs.seq_len
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
