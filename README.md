@@ -59,6 +59,8 @@ criterion = 'mae'
 schedular_bool = True # if it is none it doesn't uses schedular if it is true it uses schedular 
 
 pred,train_model_state,best_epoch = timesnetmodel_experiment(model,output_type,df_train_, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs,criterion, schedular_bool)
+
+pred,train,model_state,_ = timesnetmain(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
 ```
 # RUNNING with weights and configs 
 ```markdown
