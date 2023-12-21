@@ -45,19 +45,17 @@ torch.cuda.manual_seed_all(seed)  # for multi-GPU.
 np.random.seed(seed)
 random.seed(seed)  # Replace 42 with your chosen seed number
 
-df_train_ = train_ #df_train[-1]
-val_f = pd.concat([df_train_.iloc[-configs.seq_len:],real_val],axis=0) #this should be a list
-df_validation = [val_f] # Currently this is set such that it shows
-target_col = '평균기온'
+df_train_ = train_dfs # Must be list
+df_validation = val_dfs # Must be list 
+target_col = None # None or single string 
 learning_rate = 0.001
 num_epochs = 20
 batch_sizes = 30
 configs__ = configs
-model = 'timesnet'
-df_test = train_
-output_type = 'single'
+model = 'itransformer'
+df_test = test_dfs # This has to be full datasets 
 criterion = 'mae'
-schedular_bool = True # if it is none it doesn't uses schedular if it is true it uses schedular 
+schedular_bool = True 
 
 pred,train_model_state,best_epoch = timesnetmodel_experiment(model,output_type,df_train_, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs,criterion, schedular_bool)
 
