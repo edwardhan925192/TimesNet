@@ -65,7 +65,7 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
       if model == 'timesnet':
           model = Model(configs).to(device)
       if model == 'itransformer':
-          model = I_T_Model(configs).to(device)
+          model = Itransformer(configs).to(device)
           
       if configs.task_name == 'short_term_forecast':
           train_dataset = TimeSeriesDataset(train_, configs.seq_len, configs.pred_len)
@@ -155,7 +155,7 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
 
     return training_loss_history, validation_loss_history, mean_validation_loss_per_epoch, best_model_state    
 
-def test_model(model, output_type, test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
+def test_model(model, test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
     '''
     Retrain the model with full datasets and make a final prediction.
     It returns both prediction and final model state     
@@ -165,11 +165,13 @@ def test_model(model, output_type, test, target_col,learning_rate, num_epochs,ba
     target_index = col_list.index(target_col) if target_col in col_list else -1
 
     model_type = model
-    best_model_state = None
+    best_model_state = None    
     # ==================== MODEL SELECTION ========================== #
     if model == 'timesnet':
-      model = Model(configs).to(device)
-
+        model = Model(configs).to(device)
+    if model == 'itransformer':
+        model = Itransformer(configs).to(device)
+        
     # ==================== CRITERION ========================== #
     if criterion =='mse':
         criterion = nn.MSELoss()
@@ -185,7 +187,7 @@ def test_model(model, output_type, test, target_col,learning_rate, num_epochs,ba
     test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
     test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
 
-    train_dataset = TimeSeriesDataset(output_type, test, configs.seq_len, configs.pred_len, target_col)
+    train_dataset = TimeSeriesDataset(test, configs.seq_len, configs.pred_len)
     train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
 
     for epoch in range(num_epochs):
