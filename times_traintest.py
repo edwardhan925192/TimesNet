@@ -48,13 +48,7 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
     if criterion =='mse':
         criterion = nn.MSELoss()
     if criterion =='mae':
-        criterion = nn.L1Loss()
-
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
-    # =================== Schedular initialization ======================= #
-    if schedular_bool:
-      scheduler = initialize_scheduler(optimizer, configs)
+        criterion = nn.L1Loss()    
 
     # ==================== TRAINING ========================== #
     whole_val_storage = []
@@ -67,6 +61,13 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
           model = Model(configs).to(device)
       if model == 'itransformer':
           model = Itransformer(configs).to(device)
+
+      # ==================== OPTIM ========================= # 
+      optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+      # =================== Schedular initialization ======================= #
+      if schedular_bool:
+        scheduler = initialize_scheduler(optimizer, configs)
           
       if configs.task_name == 'short_term_forecast':
           train_dataset = TimeSeriesDataset(train_, configs.seq_len, configs.pred_len)
