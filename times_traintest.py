@@ -21,8 +21,8 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def train_model(model, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
     '''
-    It takes list of train and val sets. If target is an univariate form include target_col or none. 
-    target is either a single col or the whole outputs including all data. 
+    Both training set and validation set have to be LISTS. 
+    If you want specific target for outputs specific target_col (single name) 
 
     1. Takes model trainset and validation set
     2. Load Data with datasets
@@ -42,13 +42,7 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
     # ==================== TARGET INDEX ========================== #
     col_list = list(df_train[0].columns)
     target_index = col_list.index(target_col) if target_col in col_list else -1
-
-    # ==================== MODEL SELECTION ========================== #
-    if model == 'timesnet':
-      model = Model(configs).to(device)
-    if model == 'itransformer':
-      model = I_T_Model(configs).to(device)
-
+    
     # ==================== CRITERION ========================== #
     if criterion =='mse':
         criterion = nn.MSELoss()
@@ -66,6 +60,13 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
 
     # ==================== INDIVIDUAL TRAINING SETS ====================== # 
     for train_ , val_ in zip(df_train, df_validation):                
+
+      # ==================== MODEL SELECTION ========================== #
+      if model == 'timesnet':
+          model = Model(configs).to(device)
+      if model == 'itransformer':
+          model = I_T_Model(configs).to(device)
+          
       if configs.task_name == 'short_term_forecast':
           train_dataset = TimeSeriesDataset(train_, configs.seq_len, configs.pred_len)
           train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
@@ -124,7 +125,7 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
                         batch_target = batch_target[:,:, target_col]
 
                       # ============== LOSSES =============== # 
-                      loss_ = criterion(outputs, batch_target)
+                      loss_ = manual_mae_score(outputs,batch_target, range(0,122))
 
                       val_loss += loss_.item()
 
