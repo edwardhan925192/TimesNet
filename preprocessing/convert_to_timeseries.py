@@ -1,8 +1,8 @@
 import pandas as pd
 
-def convert_to_timeseries(df, date_columns, unique_identifier, target_column):
+def convert_to_timeseries_with_index(df, date_columns, unique_identifier, target_column):
     """
-    Converts a DataFrame into a time series-like format, keeping the original index.
+    Converts a DataFrame into a time series-like format, including separate datetime column and original index.
 
     :param df: pandas DataFrame
     :param date_columns: List of columns representing the datetime (Year, Month, Day, Hour)
@@ -17,15 +17,15 @@ def convert_to_timeseries(df, date_columns, unique_identifier, target_column):
     df = df.reset_index()
 
     # Create a pivot table
-    time_series_df = df.pivot_table(index='index', 
-                                    columns=unique_identifier, 
-                                    values=target_column, 
-                                    aggfunc='sum')
+    pivoted_df = df.pivot_table(index='index', 
+                                columns=unique_identifier, 
+                                values=target_column, 
+                                aggfunc='sum')
 
     # Rename the columns
-    time_series_df.columns = [f"{col}_{target_column}" for col in time_series_df.columns]
+    pivoted_df.columns = [f"{col}_{target_column}" for col in pivoted_df.columns]
 
     # Join the datetime column back to the pivoted DataFrame
-    time_series_df = time_series_df.join(df.set_index('index')['datetime'])
+    final_df = pivoted_df.join(df[['index', 'datetime']].set_index('index'))
 
-    return time_series_df
+    return final_df
