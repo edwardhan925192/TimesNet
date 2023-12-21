@@ -31,12 +31,7 @@ def split_train_validation_timeseries(df, validation_ranges, seq_len):
 
         # Split the DataFrame
         validation_df = df.iloc[adjusted_start:end]
-        train_df = df.iloc[:start]
-
-        # Extract only the target column if single is True
-        if single:
-            validation_df = validation_df[target_column]
-            train_df = train_df[target_column]
+        train_df = df.iloc[:start]        
 
         train_dfs.append(train_df)
         validation_dfs.append(validation_df)
