@@ -8,6 +8,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 from times_model import Model
+from itransformer import Itransformer
 from whole_dataset import TimeSeriesDataset,TimeSeries_ValDataset,TimeSeries_TestDataset
 from schedular.scheduler import initialize_scheduler
 import json
