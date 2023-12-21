@@ -36,8 +36,7 @@ class TimeSeries_ValDataset(Dataset):
         Parameters:
         dataframe (pd.DataFrame): The input DataFrame.
         sequence_length (int): The length of the input sequences.
-        prediction_length (int): The length of the prediction sequences.
-        batch_size (int): The batch size for validation.
+        prediction_length (int): The length of the prediction sequences.        
         """
         self.dataframe = dataframe
         self.sequence_length = sequence_length
