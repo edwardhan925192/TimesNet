@@ -1,7 +1,7 @@
 import numpy as np 
 import pandas as pd 
 
-def split_train_validation_timeseries(df, validation_ranges, target_column, seq_len, single=False):
+def split_train_validation_timeseries(df, validation_ranges, seq_len):
     '''
     Takes a DataFrame and a list of validation ranges (e.g., [(800, 900), (900, 1000)])
     Validation is going to be the Range that is takes MINUS the sequence length e.g, (700,900) 
