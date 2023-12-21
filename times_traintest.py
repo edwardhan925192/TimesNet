@@ -19,30 +19,9 @@ import matplotlib.pyplot as plt
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-import pickle
-import os
-import sys
-import argparse
-import numpy as np
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader, Dataset
-from tqdm import tqdm
-from times_model import Model
-from whole_dataset import TimeSeriesDataset,TimeSeries_ValDataset,TimeSeries_TestDataset
-from schedular.scheduler import initialize_scheduler
-import json
-import pandas as pd
-import copy
-import torchvision.ops
-#from times_config import configs
-import matplotlib.pyplot as plt
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 def train_model(model, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
     '''
-    BOTH TRAINING SET AND VALIDATION SET HAVE TO BE LISTS 
+    It takes list of train and val sets. If target is an univariate form include target_col or none. 
 
     1. Takes model trainset and validation set
     2. Load Data with datasets
