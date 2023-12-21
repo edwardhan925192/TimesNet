@@ -126,7 +126,7 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
                         batch_target = batch_target[:,:, target_col]
 
                       # ============== LOSSES =============== # 
-                      loss_ = manual_mae_score(outputs,batch_target, range(0,122))
+                      loss_ = criterion(outputs, batch_target)
 
                       val_loss += loss_.item()
 
@@ -232,9 +232,9 @@ def test_model(model, test, target_col,learning_rate, num_epochs,batch_sizes, co
             outputs = model(batch_test_data)
 
             # ============== OUTPUT ADJUSTMENT =============== #
-              if target_col:
-                  outputs = outputs[:,:, target_col]
-                  batch_target = batch_target[:,:, target_col]
+            if target_col:
+                outputs = outputs[:,:, target_col]
+                batch_target = batch_target[:,:, target_col]
 
             predictions.extend(outputs.cpu().numpy())
 
