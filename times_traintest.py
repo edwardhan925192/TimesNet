@@ -157,7 +157,8 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
 
 def test_model(model, output_type, test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
     '''
-    Retrain the model with full datasets and make a final prediction
+    Retrain the model with full datasets and make a final prediction.
+    It returns both prediction and final model state     
     '''
     # ==================== TARGET INDEX ========================== #
     col_list = list(test.columns)
@@ -196,12 +197,10 @@ def test_model(model, output_type, test, target_col,learning_rate, num_epochs,ba
                 optimizer.zero_grad()
                 outputs = model(batch_data)
 
-                # ============== OUTPUT TYPE =============== #
-                if output_type == 'single':
-                  outputs = outputs[:, :, target_index]
-
-                if outputs.shape[-1] <= 1:
-                  outputs = outputs.squeeze(-1)
+                # ============== OUTPUT ADJUSTMENT =============== #
+                if target_col:
+                    outputs = outputs[:,:, target_col]
+                    batch_target = batch_target[:,:, target_col]
 
                 loss = criterion(outputs, batch_target)
                 loss.backward()
@@ -216,15 +215,19 @@ def test_model(model, output_type, test, target_col,learning_rate, num_epochs,ba
           scheduler.step()
 
     best_model_state = copy.deepcopy(model.state_dict())
+
+    # ====================== Testing ========================= #
     model.eval()
     predictions = []
     with torch.no_grad():
         for batch_test_data in test_loader:
             batch_test_data = batch_test_data.to(device)
             outputs = model(batch_test_data)
-            # ============== OUTPUT TYPE =============== #
-            if output_type == 'single':
-              outputs = outputs[:, :, target_index]
+
+            # ============== OUTPUT ADJUSTMENT =============== #
+              if target_col:
+                  outputs = outputs[:,:, target_col]
+                  batch_target = batch_target[:,:, target_col]
 
             predictions.extend(outputs.cpu().numpy())
 
