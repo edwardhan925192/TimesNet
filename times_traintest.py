@@ -149,11 +149,15 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
     
     
     mean_validation_loss_per_epoch = [sum(epoch_losses) / len(epoch_losses) for epoch_losses in zip(*whole_val_storage)]
-
+    best_epoch = -1 
+    temp_loss = 99999999999
     for i in range(len(mean_validation_loss_per_epoch)):
       print(f"Final BEST Epoch {i + 1}/{num_epochs}, Final Average Validation Loss: {mean_validation_loss_per_epoch[i]}")    
-
-    return training_loss_history, validation_loss_history, mean_validation_loss_per_epoch, best_model_state    
+      if mean_validation_loss_per_epoch[i] < temp_loss: 
+          temp_loss = mean_validation_loss_per_epoch[i]
+          best_epoch = i + 1 
+        
+    return training_loss_history, validation_loss_history, mean_validation_loss_per_epoch, best_epoch, best_model_state    
 
 def test_model(model, test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
     '''
