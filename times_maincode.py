@@ -16,8 +16,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 def timesnetmain(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
     if model == 'timesnet':
       model = Model(configs).to(device)
-
-    train_data = train
+    
     # ===== train and validate model ===== #
     _,_,best_epoch, train_model_state = train_model(model,output_type, df_train, df_validation,  target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool)
 
