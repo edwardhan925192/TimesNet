@@ -24,6 +24,7 @@ from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from tqdm import tqdm
 import json
+!rm -r foldername
 ```
 
 # TimesNet Datasets
