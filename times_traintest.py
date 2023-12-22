@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def train_model(model, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
+def train_model(model_type, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
     '''
     Both training set and validation set have to be LISTS. 
     If you want specific target for outputs specific target_col (single name) 
@@ -58,9 +58,9 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
       val_storage = []
         
       # ==================== MODEL SELECTION ========================== #
-      if model == 'timesnet':
+      if model_type == 'timesnet':
           model = Model(configs).to(device)
-      if model == 'itransformer':
+      if model_type == 'itransformer':
           model = Itransformer(configs).to(device)
 
       # ==================== OPTIM ========================= # 
@@ -161,7 +161,7 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
         
     return training_loss_history, validation_loss_history, mean_validation_loss_per_epoch, best_epoch, best_model_state    
 
-def test_model(model, df_test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
+def test_model(model_type, df_test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
     '''
     Retrain the model with full datasets and make a final prediction and return model state 
     '''
@@ -171,9 +171,9 @@ def test_model(model, df_test, target_col,learning_rate, num_epochs,batch_sizes,
     
     best_model_state = None
     # ==================== MODEL SELECTION ========================== #
-    if model == 'timesnet':
+    if model_type == 'timesnet':
       model = Model(configs).to(device)
-    if model == 'itransformer':
+    if model_type == 'itransformer':
       model = Itransformer(configs).to(device)
 
     # ==================== CRITERION ========================== #
