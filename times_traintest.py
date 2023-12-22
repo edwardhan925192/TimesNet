@@ -161,22 +161,21 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
         
     return training_loss_history, validation_loss_history, mean_validation_loss_per_epoch, best_epoch, best_model_state    
 
-def test_model(model, test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
+def test_model(model, df_test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
     '''
     Retrain the model with full datasets and make a final prediction and return model state 
     '''
     # ==================== TARGET INDEX ========================== #
-    col_list = list(test.columns)
+    col_list = list(df_test.columns)
     target_index = col_list.index(target_col) if target_col in col_list else -1
-
-    model_type = model
+    
     best_model_state = None
     # ==================== MODEL SELECTION ========================== #
     if model == 'timesnet':
       model = Model(configs).to(device)
     if model == 'itransformer':
       model = Itransformer(configs).to(device)
-          
+
     # ==================== CRITERION ========================== #
     if criterion =='mse':
         criterion = nn.MSELoss()
@@ -188,11 +187,11 @@ def test_model(model, test, target_col,learning_rate, num_epochs,batch_sizes, co
     # =================== Scheduler initialization ======================= # 
     if scheduler_bool:      
       scheduler = initialize_scheduler(optimizer, configs)    
-
-    test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
+    
+    test_dataset = TimeSeries_TestDataset(df_test, configs.seq_len)
     test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
 
-    train_dataset = TimeSeriesDataset( test, configs.seq_len, configs.pred_len)
+    train_dataset = TimeSeriesDataset(df_test, configs.seq_len, configs.pred_len)
     train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
 
     for epoch in range(num_epochs):
@@ -214,11 +213,11 @@ def test_model(model, test, target_col,learning_rate, num_epochs,batch_sizes, co
                 optimizer.step()
 
                 # ========== SCHEDULER ========== #                
-                if configs.scheduler_bool and configs.scheduler_update_type == 'batch':
+                if scheduler_bool and configs.scheduler_update_type == 'batch':
                   scheduler.step(epoch + batch_idx / len(train_loader))
 
             # Update Scheduler after each epoch if specified
-        if configs.scheduler_bool and configs.scheduler_update_type == 'epoch':
+        if scheduler_bool and configs.scheduler_update_type == 'epoch':
           scheduler.step()
 
     best_model_state = copy.deepcopy(model.state_dict())
