@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np 
 from times_traintest import train_model, test_model
 from times_model import Model
+from itransformer import Itransformer
 from whole_dataset import TimeSeriesDataset,TimeSeries_ValDataset,TimeSeries_TestDataset
 import torch
 import torch.nn as nn
@@ -12,39 +13,33 @@ from torch.utils.data import Dataset, DataLoader
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-# ====================== Train, Test MAIN ========================= #
-def timesnetmain(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
-    if model == 'timesnet':
-      model = Model(configs).to(device)
-    
-    # ===== train and validate model ===== #
-    _,_,best_epoch, train_model_state = train_model(model,output_type, df_train, df_validation,  target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool)
+def timesnetmain(model,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool):
+  _,_,_,best_epoch,_ = train_model(model, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
+  pred, model_state = test_model(model, df_test, target_col,learning_rate, best_epoch,batch_sizes, configs, criterion, scheduler_bool)
+  return pred[0], model_state
 
-    # from validation get best epoch and retrain with full datasets and return the prediction of last one
-    best_epoch = best_epoch + 1
-    full_training_set = df_test
-
-    # ===== test model ===== #
-    pred, test_model_state = test_model(model, output_type, df_test,target_col, learning_rate, best_epoch, batch_sizes,configs, criterion, schedular_bool)
-    return pred,train_model_state, test_model_state
-
-def test_model_with_weights(model_type, output_type, state_dict_path, test, target_col,  batch_sizes, configs):
+def test_model_with_weights(model_type, state_dict_path, df_test, target_col,  batch_sizes, configs):
     '''
-    Retrain the model with full datasets and make a final prediction
+    Reproducing the test results using model weights
     '''
     # ==================== TARGET INDEX ========================== #
     col_list = list(test.columns)
     target_index = col_list.index(target_col) if target_col in col_list else -1
 
-    model = Model(configs).to(device)
+    # ==================== MODEL SELECTION ========================== #
+    if model_type == 'timesnet':
+      model = Model(configs).to(device)
+    if model_type == 'itransformer':
+      model = Itransformer(configs).to(device)
+        
     # Assuming state_dict is an OrderedDict containing model weights
     model.load_state_dict(state_dict_path)
 
     model.eval()  # Set the model to evaluation mode
 
     # Prepare the test data
-    test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
-    test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
+    test_dataset = TimeSeries_TestDataset(df_test, configs.seq_len)
+    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
     # Make predictions
     predictions = []
@@ -53,12 +48,11 @@ def test_model_with_weights(model_type, output_type, state_dict_path, test, targ
             batch_test_data = batch_test_data.to(device)
             outputs = model(batch_test_data)
 
-            # ============= OUTPUT TYPE AND SHAPE ================= #
-            if output_type == 'single':
-              outputs = outputs[:, :, target_index]
-
-            if outputs.shape[-1] <= 1:
-              outputs = outputs.squeeze(-1)
+            # ============== OUTPUT ADJUSTMENT =============== #
+            if target_col:
+                outputs = outputs[:,:, target_col]
+                batch_target = batch_target[:,:, target_col]
+            
             predictions.extend(outputs.cpu().numpy())
 
     return predictions
