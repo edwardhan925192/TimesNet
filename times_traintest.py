@@ -33,9 +33,7 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
 
     best_val_loss = float('inf')
     best_model_state = None
-    best_epoch = -1
-
-    model_type = model
+    best_epoch = -1    
 
     training_loss_history = []
     validation_loss_history = []
