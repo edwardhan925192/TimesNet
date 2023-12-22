@@ -163,21 +163,20 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
 
 def test_model(model, test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
     '''
-    Retrain the model with full datasets and make a final prediction.
-    It returns both prediction and final model state     
+    Retrain the model with full datasets and make a final prediction and return model state 
     '''
     # ==================== TARGET INDEX ========================== #
     col_list = list(test.columns)
     target_index = col_list.index(target_col) if target_col in col_list else -1
 
     model_type = model
-    best_model_state = None    
+    best_model_state = None
     # ==================== MODEL SELECTION ========================== #
     if model == 'timesnet':
-        model = Model(configs).to(device)
+      model = Model(configs).to(device)
     if model == 'itransformer':
-        model = Itransformer(configs).to(device)
-        
+      model = Itransformer(configs).to(device)
+          
     # ==================== CRITERION ========================== #
     if criterion =='mse':
         criterion = nn.MSELoss()
@@ -193,7 +192,7 @@ def test_model(model, test, target_col,learning_rate, num_epochs,batch_sizes, co
     test_dataset = TimeSeries_TestDataset(test, configs.seq_len)
     test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
 
-    train_dataset = TimeSeriesDataset(test, configs.seq_len, configs.pred_len)
+    train_dataset = TimeSeriesDataset( test, configs.seq_len, configs.pred_len)
     train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
 
     for epoch in range(num_epochs):
@@ -234,8 +233,8 @@ def test_model(model, test, target_col,learning_rate, num_epochs,batch_sizes, co
 
             # ============== OUTPUT ADJUSTMENT =============== #
             if target_col:
-                outputs = outputs[:,:, target_col]
-                batch_target = batch_target[:,:, target_col]
+                  outputs = outputs[:,:, target_col]
+                  batch_target = batch_target[:,:, target_col]
 
             predictions.extend(outputs.cpu().numpy())
 
