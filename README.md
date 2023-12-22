@@ -57,9 +57,11 @@ df_test = test_dfs # This has to be full datasets
 criterion = 'mae'
 schedular_bool = True 
 
-pred,train_model_state,best_epoch = timesnetmodel_experiment(model,output_type,df_train_, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs,criterion, schedular_bool)
+_,_,_,best_epoch,train_model_state = train_model(model, df_train_, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
 
-pred,train,model_state,_ = timesnetmain(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
+pred, model_state = test_model(model, df_test, target_col,learning_rate, best_epoch,batch_sizes, configs, criterion, scheduler_bool)
+
+pred, state = timesnetmain(model,df_train_, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool)
 ```
 # RUNNING with weights and configs 
 ```markdown
