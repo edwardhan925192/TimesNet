@@ -55,7 +55,8 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
 
     # ==================== INDIVIDUAL TRAINING SETS ====================== # 
     for train_ , val_ in zip(df_train, df_validation):                
-
+      val_storage = []
+        
       # ==================== MODEL SELECTION ========================== #
       if model == 'timesnet':
           model = Model(configs).to(device)
@@ -73,8 +74,7 @@ def train_model(model, df_train, df_validation, target_col, learning_rate, num_e
           train_dataset = TimeSeriesDataset(train_, configs.seq_len, configs.pred_len)
           train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
 
-      for epoch in range(num_epochs):
-          val_storage = []
+      for epoch in range(num_epochs):          
 
           model.train()
           total_loss = 0
