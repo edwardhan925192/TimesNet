@@ -39,7 +39,7 @@ def seed_ensemble_with_weights(model_type, df_train_, df_validation, df_test,  t
     
   return prediction_lists, model_states_lists
 
-def seed_ensemble(model_type,df_train, df_validation, df_test,  target_col, configs, learning_rate, num_epochs, batch_sizes, num_seed):
+def seed_ensemble(model_type,df_train, df_validation, df_test,  target_col, configs, learning_rate, num_epochs, batch_sizes, criterion, scheduler_bool, num_seed):
 
   model_states_lists = []
   prediction_lists = []
