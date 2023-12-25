@@ -1,6 +1,22 @@
 import numpy as np
+import random
+import os
+import torch
 from times_traintest import train_model
 from times_maincode import test_model_with_weights, timesnetmain
+
+def seed_everything(seed):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+seed_number = 42
+seed_everything(seed_number)
 
 def seed_ensemble_with_weights(model_type, df_train_, df_validation, df_test,  target_col, configs, learning_rate, num_epochs, batch_sizes, num_seed):
 
