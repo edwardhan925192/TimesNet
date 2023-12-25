@@ -47,6 +47,6 @@ def seed_ensemble(model_type,df_train, df_validation, df_test,  target_col, conf
   # ================== TRAINING MODELS WITH DIFFERENT SEEDS ===================== #
   for seed in range(0,num_seed):
     seed_everything(seed)
-    pred, model_state = timesnetmain(model,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
+    pred, model_state = timesnetmain(model_type, df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
 
   return prediction_lists,model_states_lists
