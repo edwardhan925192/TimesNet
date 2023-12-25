@@ -21,7 +21,7 @@ def seed_ensemble_with_weights(model_type, df_train_, df_validation, df_test,  t
 
   ensembled_pred = np.mean(np.stack(prediction_lists), axis=0)
 
-  return ensembled_pred, model_states_lists
+  return prediction_lists, model_states_lists
 
 def seed_ensemble(model_type,df_train, df_validation, df_test,  target_col, configs, learning_rate, num_epochs, batch_sizes, num_seed):
 
