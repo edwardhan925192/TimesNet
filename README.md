@@ -28,7 +28,11 @@ from tqdm import tqdm
 import json
 !rm -r foldername
 ```
-
+# Validation set 
+```markdown
+# range that are taken from validation set is for prediction
+# Validation set automatically return - seq (BE AWARE) 
+```
 # TimesNet Datasets
 ```markdown
 !git clone 'https://github.com/edwardhan925192/TimesNet.git'
