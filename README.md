@@ -31,7 +31,7 @@ import json
 
 # TimesNet Datasets
 ```markdown
-!git clone 'https://github.com/edwardhan925192/TimsNet.git'
+!git clone 'https://github.com/edwardhan925192/TimesNet.git'
 %cd '/content/TimesNet'
 
 # Both train and test datasets takes dataframe
