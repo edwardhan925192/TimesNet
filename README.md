@@ -32,6 +32,7 @@ import json
 # TimesNet Datasets
 ```markdown
 !git clone 'https://github.com/edwardhan925192/TimsNet.git'
+%cd '/content/TimesNet'
 
 # Both train and test datasets takes dataframe
 # train datasets returns single target and n sequences
