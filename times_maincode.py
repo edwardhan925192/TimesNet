@@ -50,8 +50,8 @@ def test_model_with_weights(model_type, state_dict_path, df_test, target_col,  b
 
             # ============== OUTPUT ADJUSTMENT =============== #
             if target_col:
-                outputs = outputs[:,:, target_col]
-                batch_target = batch_target[:,:, target_col]
+                outputs = outputs[:,:, target_index]
+                batch_target = batch_target[:,:, target_index]
             
             predictions.extend(outputs.cpu().numpy())
 
