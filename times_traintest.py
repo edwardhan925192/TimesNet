@@ -83,7 +83,7 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
               optimizer.zero_grad()
               outputs = model(batch_data)
 
-              # ============== OUTPUT ADJUSTMENT =============== #                  
+              # ============== OUTPUT ADJUSTMENT =============== #                                
               if target_col:
                   outputs = outputs[:,:, target_index]
                   batch_target = batch_target[:,:, target_index]
