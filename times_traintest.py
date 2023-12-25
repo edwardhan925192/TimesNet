@@ -85,8 +85,8 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
 
               # ============== OUTPUT ADJUSTMENT =============== #                  
               if target_col:
-                  outputs = outputs[:,:, target_col]
-                  batch_target = batch_target[:,:, target_col]
+                  outputs = outputs[:,:, target_index]
+                  batch_target = batch_target[:,:, target_index]
               
               # ============== LOSSES ================ #
               loss = criterion(outputs, batch_target)
