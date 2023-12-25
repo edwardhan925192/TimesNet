@@ -68,7 +68,7 @@ configs__ = configs
 model = 'itransformer'
 df_test = test_dfs # This has to be full datasets 
 criterion = 'mae'
-schedular_bool = True 
+scheduler_bool = True 
 trials = 20 
 _,_,_,best_epoch,train_model_state = train_model(model, df_train_, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
 
