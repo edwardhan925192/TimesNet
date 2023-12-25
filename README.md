@@ -56,13 +56,7 @@ seed_everything(seed_number)
 ```
 # Training and testing TimesNet
 ```markdown
-seed = 0
-torch.manual_seed(seed)
-
-torch.cuda.manual_seed(seed)
-torch.cuda.manual_seed_all(seed)  # for multi-GPU.
-np.random.seed(seed)
-random.seed(seed)  # Replace 42 with your chosen seed number
+seed_everything() #Currently set it to 42 
 
 df_train_ = train_dfs # Must be list
 df_validation = val_dfs # Must be list 
