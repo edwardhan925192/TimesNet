@@ -34,6 +34,25 @@ import json
 # Both train and test datasets takes dataframe
 # train datasets returns single target and n sequences
 # test datasets returns last of n batch of sequences without targets
+
+import random
+import numpy as np
+import os
+import torch
+
+def seed_everything(seed):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+seed_number = 42
+seed_everything(seed_number)
+
 ```
 # Training and testing TimesNet
 ```markdown
