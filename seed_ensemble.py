@@ -19,7 +19,7 @@ seed_number = 42
 seed_everything(seed_number)
 
 def seed_ensemble_with_weights(model_type, df_train_, df_validation, df_test,  target_col, configs, learning_rate, num_epochs, batch_sizes, num_seed):
-
+    
   model_states_lists = []
 
   # ================== TRAINING MODELS WITH DIFFERENT SEEDS ===================== #
@@ -36,7 +36,7 @@ def seed_ensemble_with_weights(model_type, df_train_, df_validation, df_test,  t
     prediction_lists.append(pred)
 
   ensembled_pred = np.mean(np.stack(prediction_lists), axis=0)
-
+    
   return prediction_lists, model_states_lists
 
 def seed_ensemble(model_type,df_train, df_validation, df_test,  target_col, configs, learning_rate, num_epochs, batch_sizes, num_seed):
@@ -48,5 +48,7 @@ def seed_ensemble(model_type,df_train, df_validation, df_test,  target_col, conf
   for seed in range(0,num_seed):
     seed_everything(seed)
     pred, model_state = timesnetmain(model_type, df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
+    prediction_lists.append(pred)
+    model_states_lists.append(model_state)
 
   return prediction_lists,model_states_lists
