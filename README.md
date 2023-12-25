@@ -4,6 +4,8 @@ The model meticulously employs the Fast Fourier Transform (FFT) to ascertain the
 
 # Colab
 ```markdown
+!pip install einops
+!pip install optuna
 import pandas as pd
 import numpy as np
 from datetime import datetime
