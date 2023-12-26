@@ -62,8 +62,9 @@ import json
 
 # split_train_validation_timeseries function takes 3 parameters,
 # 1. Dfs that are going to be splitted
-# 2. Validation range which are going to be tuples of range of index that is going to be used for predictioin
-# 3. Sequence length that are going to be used for prediction validation
+# 2. Validation range which are going to be tuples of range of index that are going to be used for predictioin ex) [(800, 900), (900,1000)]
+# 3. Sequence length that are going to be used for prediction validation ex) 365
+# Returned sets look like this df with rows from 800 - 365 to 900. So that 435 to 800 is used for sequence and 800 to 900 is used for prediction
 
 from validation_split import split_train_validation_timeseries
 ```
