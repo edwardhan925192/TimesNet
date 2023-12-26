@@ -55,15 +55,9 @@ def test_model_with_weights(model_type, state_dict_path, df_test, target_col,  b
 
     return predictions
 
-def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion):
-    if model == 'timesnet':
-      model = Model(configs).to(device)
-    if model == 'itransformer':
-      model = Itransformer(configs).to(device)
-
-    train_data = df_train
+def timesnetmodel_experiment_exp(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion,scheduler_bool):        
     # ===== train and validate model ===== #
-    _, _, best_epoch, train_model_state = train_model(model,output_type, df_train, df_validation,  target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, range_exp)
+    _, _, best_epoch, train_model_state = train_model(model, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
 
     # from validation get best epoch and retrain with full datasets and return the prediction of last one
     best_epoch = best_epoch + 1
@@ -72,7 +66,7 @@ def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test,
     pred = test_model_with_weights(None, output_type, train_model_state, df_test, target_col, batch_sizes, configs)
 
     return pred,train_model_state,best_epoch
-
+  
 def train_with_lr_range(model, output_type, df_train, df_validation, target_col, lr_range, num_epochs, batch_sizes, configs, criterion):
     '''
     Trains the model over a range of learning rates and plots the training process.
