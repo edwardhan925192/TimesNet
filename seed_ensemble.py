@@ -25,7 +25,7 @@ def seed_ensemble_with_weights(model_type, df_train_, df_validation, df_test,  t
   # ================== TRAINING MODELS WITH DIFFERENT SEEDS ===================== #
   for seed in range(0,num_seed):
     seed_everything(seed)
-    _,_,_,best_epoch,train_model_state = train_model(model, df_train_, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
+    _,_,_,best_epoch,train_model_state = train_model(model_type, df_train_, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
     model_states_lists.append(train_model_state)
 
   # =================== AFTER GETTING THE WEIGHTS PREDICT THE DATASETS WITH GAINED WEIGHTS ============ #
