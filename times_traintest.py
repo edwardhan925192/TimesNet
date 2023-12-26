@@ -82,12 +82,13 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
               batch_data, batch_target = batch_data.to(device), batch_target.to(device)
               optimizer.zero_grad()
               outputs = model(batch_data)
-
+              print(f'OUTPUTS========{outputs}')
               # ============== OUTPUT ADJUSTMENT =============== #                                
               if target_col:
                   outputs = outputs[:,:, target_index]
                   batch_target = batch_target[:,:, target_index]
-              
+                  
+              print(f'OUTPUTS========{outputs}')
               # ============== LOSSES ================ #
               loss = criterion(outputs, batch_target)
               loss.backward()
