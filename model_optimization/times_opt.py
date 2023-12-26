@@ -29,7 +29,7 @@ def timesnet_opt(model, df_train_, df_validation, target_col, learning_rate, num
           batch_sizes=batch_sizes,
           configs=configs,
           criterion=criterion,  # or 'mae' based on your requirement
-          scheduler_bool=scheduler_bool
+          schedular_bool=scheduler_bool
       )
 
       # Optuna tries to minimize the returned value, so return the metric you want to minimize
