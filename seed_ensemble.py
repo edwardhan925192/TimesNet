@@ -18,7 +18,7 @@ def seed_everything(seed):
 seed_number = 42
 seed_everything(seed_number)
 
-def seed_ensemble_with_weights(model_type, df_train_, df_validation, df_test,  target_col, configs, learning_rate, num_epochs, batch_sizes, num_seed):
+def seed_ensemble_with_weights(model_type, df_train_, df_validation, df_test,  target_col, configs, learning_rate, num_epochs, batch_sizes, criterion, scheduler_bool, num_seed):
     
   model_states_lists = []
 
