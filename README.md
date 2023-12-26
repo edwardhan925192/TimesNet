@@ -60,7 +60,10 @@ import json
 # train datasets returns single target and n sequences
 # test datasets returns last of n batch of sequences without targets
 
-# split_train_validation_timeseries function takes 3 parameters, 1. Dfs that are going to be splitted, 2. Validation range which are going to be tuples of range of index that is going to be used for predictioin, and 3. Sequence length that are going to be used for prediction validation
+# split_train_validation_timeseries function takes 3 parameters,
+# 1. Dfs that are going to be splitted
+# 2. Validation range which are going to be tuples of range of index that is going to be used for predictioin
+# 3. Sequence length that are going to be used for prediction validation
 
 from validation_split import split_train_validation_timeseries
 ```
