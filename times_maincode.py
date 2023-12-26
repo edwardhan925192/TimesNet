@@ -57,7 +57,7 @@ def test_model_with_weights(model_type, state_dict_path, df_test, target_col,  b
 
 def timesnetmodel_experiment_exp(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion,scheduler_bool):        
     # ===== train and validate model ===== #
-    _, _, best_epoch, train_model_state = train_model(model, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
+    _, _, _, best_epoch, train_model_state = train_model(model, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool)
 
     # from validation get best epoch and retrain with full datasets and return the prediction of last one
     best_epoch = best_epoch + 1
