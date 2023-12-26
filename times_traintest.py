@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-def train_model(model_type, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
+def train_model(model_type, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool):
     '''
     Both training set and validation set have to be LISTS. 
     If you want specific target for outputs specific target_col (single name) 
