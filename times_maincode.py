@@ -55,7 +55,7 @@ def test_model_with_weights(model_type, state_dict_path, df_test, target_col,  b
 
     return predictions
 
-def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, range_exp):
+def timesnetmodel_experiment(model,output_type,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion):
     if model == 'timesnet':
       model = Model(configs).to(device)
     if model == 'itransformer':
