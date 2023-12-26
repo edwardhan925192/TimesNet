@@ -99,7 +99,7 @@ pred, state = timesnetmain(model,df_train_, df_validation, df_test, target_col, 
 best_param, best_score =  timesnet_opt(model, df_train_, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool,trials)
 ```
 
-# Ensemble 
+# 3. Ensemble 
 ```markdown
 pred, modelstate = seed_ensemble(model_type,df_train, df_validation, df_test,  target_col, configs, learning_rate, num_epochs, batch_sizes, criterion, scheduler_bool, num_seed)
 ```
