@@ -119,8 +119,8 @@ class Itransformer_Config:
 
         # ================= Scheduler Configurations ========= #
         self.scheduler_config = SchedulerConfig()
-        self.schedular_name = 'CosineAnnealingWarmRestarts' #'CosineAnnealingWarmRestarts', 'StepLR', 'ExponentialLR', 'OneCycleLR', 'CyclicLR'
-        self.schedular_type = 'epoch' # epoch, batch
+        self.scheduler_name = 'CosineAnnealingWarmRestarts' #'CosineAnnealingWarmRestarts', 'StepLR', 'ExponentialLR', 'OneCycleLR', 'CyclicLR'
+        self.scheduler_type = 'epoch' # epoch, batch
 
     def update(self, new_params):
         for key, value in new_params.items():
