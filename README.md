@@ -106,6 +106,12 @@ best_param, best_score =  timesnet_opt(model, df_train_, df_validation, target_c
 
 # 3. Ensemble 
 ```markdown
+
+# Seed_ensemble
+# 0. takes optimized params, batch sizes, and so on
+# 1. train and find best epochs with optimized params
+# 2. test with best epochs and best params and return prediction with DIFFERENT seeds
+
 pred, modelstate = seed_ensemble(model_type,df_train, df_validation, df_test,  target_col, configs, learning_rate, num_epochs, batch_sizes, criterion, scheduler_bool, num_seed)
 ```
 # RUNNING with weights and configs 
