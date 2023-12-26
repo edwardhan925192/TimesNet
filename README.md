@@ -97,7 +97,7 @@ _,_,_,best_epoch,train_model_state = train_model(model, df_train_, df_validation
 # TEST
 pred, model_state = test_model(model, df_test, target_col,learning_rate, best_epoch,batch_sizes, configs, criterion, scheduler_bool)
 
-# TRAIN AND TEST 
+# TRAIN(get the best epoch) AND TEST 
 pred, state = timesnetmain(model,df_train_, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool)
 
 # OPTIMIZATION 
