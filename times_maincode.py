@@ -23,7 +23,7 @@ def test_model_with_weights(model_type, state_dict_path, df_test, target_col,  b
     Reproducing the test results using model weights
     '''
     # ==================== TARGET INDEX ========================== #
-    col_list = list(test.columns)
+    col_list = list(df_test.columns)
     target_index = col_list.index(target_col) if target_col in col_list else -1
 
     # ==================== MODEL SELECTION ========================== #
