@@ -10,7 +10,6 @@ import copy
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 
-
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def timesnetmain(model,df_train, df_validation, df_test, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, scheduler_bool):
@@ -50,8 +49,7 @@ def test_model_with_weights(model_type, state_dict_path, df_test, target_col,  b
 
             # ============== OUTPUT ADJUSTMENT =============== #
             if target_col:
-                outputs = outputs[:,:, target_index]
-                batch_target = batch_target[:,:, target_index]
+                outputs = outputs[:,:, target_index]                
             
             predictions.extend(outputs.cpu().numpy())
 
