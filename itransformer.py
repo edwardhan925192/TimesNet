@@ -53,7 +53,7 @@ class Itransformer(nn.Module):
     
         # Embedding
         # B L N -> B N E                (B L N -> B L E in the vanilla Transformer)
-        enc_out = self.enc_embedding(x_enc, x_mark_enc) # covariates (e.g timestamp) can be also embedded as tokens
+        enc_out = self.enc_embedding(x_enc, x_mark_enc = None) # covariates (e.g timestamp) can be also embedded as tokens
     
         # B N E -> B N E                (B L E -> B L E in the vanilla Transformer)
         # the dimensions of embedded time series has been inverted, and then processed by native attn, layernorm and ffn modules
@@ -181,7 +181,7 @@ class DataEmbedding_inverted(nn.Module):
         self.value_embedding = nn.Linear(c_in, d_model)
         self.dropout = nn.Dropout(p=dropout)
 
-    def forward(self, x, x_mark):
+    def forward(self, x, x_mark = None):
         x = x.permute(0, 2, 1)
 
         # x: [Batch Variate Time]
