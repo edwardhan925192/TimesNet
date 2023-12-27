@@ -20,27 +20,6 @@ import matplotlib.pyplot as plt
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-import pickle
-import os
-import sys
-import argparse
-import numpy as np
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader, Dataset
-from tqdm import tqdm
-from times_model import Model
-from itransformer import Itransformer
-from schedular.scheduler import initialize_scheduler
-import json
-import pandas as pd
-import copy
-import torchvision.ops
-#from times_config import configs
-import matplotlib.pyplot as plt
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 def train_model(model_type, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
     '''
     Both training set and validation set have to be LISTS. 
