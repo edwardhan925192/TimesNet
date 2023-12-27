@@ -20,6 +20,27 @@ import matplotlib.pyplot as plt
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
+import pickle
+import os
+import sys
+import argparse
+import numpy as np
+import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, Dataset
+from tqdm import tqdm
+from times_model import Model
+from itransformer import Itransformer
+from schedular.scheduler import initialize_scheduler
+import json
+import pandas as pd
+import copy
+import torchvision.ops
+#from times_config import configs
+import matplotlib.pyplot as plt
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 def train_model(model_type, df_train, df_validation, target_col, learning_rate, num_epochs, batch_sizes, configs, criterion, schedular_bool):
     '''
     Both training set and validation set have to be LISTS. 
@@ -57,7 +78,7 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
         
       # ==================== MODEL SELECTION ========================== #
       if model_type == 'timesnet':
-          model = Model(configs).to(device)
+          model = Model_output(configs).to(device)
       if model_type == 'itransformer':
           model = Itransformer(configs).to(device)
 
@@ -69,7 +90,7 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
         scheduler = initialize_scheduler(optimizer, configs)
           
       if configs.task_name == 'short_term_forecast':
-          train_dataset = TimeSeriesDataset(train_, configs.seq_len, configs.pred_len)
+          train_dataset = TimeSeriesDataset(train_, configs.seq_len, configs.pred_len, configs.seq_range, configs.eval_range)
           train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
 
       for epoch in range(num_epochs):          
@@ -81,13 +102,8 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
           for batch_idx, (batch_data, batch_target) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs}")):
               batch_data, batch_target = batch_data.to(device), batch_target.to(device)
               optimizer.zero_grad()
-              outputs = model(batch_data)
-              
-              # ============== OUTPUT ADJUSTMENT =============== #                                
-              if target_col:
-                  outputs = outputs[:,:, target_index]
-                  batch_target = batch_target[:,:, target_index]                  
-                  
+              outputs = model(batch_data)                            
+
               # ============== LOSSES ================ #
               loss = criterion(outputs, batch_target)
               loss.backward()
@@ -104,12 +120,12 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
 
           average_training_loss = total_loss / len(train_loader)
 
-          # =================== Validation ====================== #               
+          # =================== Validation ====================== #                                   
           model.eval()
           total_val_loss = 0
 
           for val_df in df_validation:
-              val_dataset = TimeSeries_ValDataset(val_, configs.seq_len, configs.pred_len)
+              val_dataset = TimeSeries_ValDataset(val_, configs.seq_len, configs.pred_len, configs.seq_range, configs.eval_range)
               val_loader = DataLoader(val_dataset, batch_size=batch_sizes, shuffle=False)
 
               val_loss = 0
@@ -117,19 +133,14 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
               with torch.no_grad():
                   for batch_data, batch_target in val_loader:
                       batch_data, batch_target = batch_data.to(device), batch_target.to(device)
-                      outputs = model(batch_data)
+                      outputs = model(batch_data)                                    
                       
-                      # ============== OUTPUT ADJUSTMENT =============== #                  
-                      if target_col:
-                        outputs = outputs[:,:, target_index]
-                        batch_target = batch_target[:,:, target_index]
-
                       # ============== LOSSES =============== # 
                       loss_ = criterion(outputs, batch_target)
 
                       val_loss += loss_.item()
 
-              total_val_loss += val_loss / len(val_loader)
+              total_val_loss += val_loss / len(val_loader)                                            
 
           average_validation_loss = total_val_loss / len(df_validation)
           training_loss_history.append(average_training_loss)
@@ -157,7 +168,7 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
           temp_loss = mean_validation_loss_per_epoch[i]
           best_epoch = i + 1 
         
-    return training_loss_history, validation_loss_history, mean_validation_loss_per_epoch, best_epoch, best_model_state    
+    return training_loss_history, validation_loss_history, mean_validation_loss_per_epoch, best_epoch, best_model_state 
 
 def test_model(model_type, df_test, target_col,learning_rate, num_epochs,batch_sizes, configs, criterion, scheduler_bool):
     '''
