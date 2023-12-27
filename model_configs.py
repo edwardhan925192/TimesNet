@@ -45,6 +45,8 @@ class Config:
         # ================= Output shape ================= #
         self.pred_len = 358   # Prediction length
         self.c_out = 1        # Output feature
+        self.eval_range = 0
+        self.seq_range = np.concatenate([np.arange(0, 45), np.arange(317, 358)]) #(1 less)
 
         # ================= Scheduler Configurations ========= #
         self.scheduler_config = SchedulerConfig()
@@ -112,6 +114,8 @@ class Itransformer_Config:
         # ================= Output shape ================= #
         self.pred_len = 358
         self.c_out = 1        # Output feature
+        self.eval_range = 0
+        self.seq_range = np.concatenate([np.arange(0, 45), np.arange(317, 358)]) #(1 less)
 
         # ================= Extras =================== #
         self.use_norm = True
