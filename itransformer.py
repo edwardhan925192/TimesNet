@@ -16,6 +16,9 @@ class Itransformer(nn.Module):
         self.seq_len = configs.seq_len
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
+        self.seq_range = configs.seq_range
+        self.eval_range = conigs.eval_range
+        
         self.use_norm = configs.use_norm
         # Embedding
         self.enc_embedding = DataEmbedding_inverted(configs.seq_len, configs.d_model, configs.embed, configs.freq,
@@ -72,7 +75,10 @@ class Itransformer(nn.Module):
     
     def forward(self, x_enc, mask=None):
         dec_out = self.forecast(x_enc)
-        return dec_out[:, -self.pred_len:, :]  # [B, L, D]
+        dec_out = dec_out[:, -self.pred_len:, :]  # [B, L, D]
+        dec_out = dec_out[:, self.seq_range, :] # sequence range
+        return dec_out[:, :, self.eval_range]  # evaluation range 
+        
 
 class TriangularCausalMask():
     def __init__(self, B, L, device="cpu"):
