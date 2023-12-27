@@ -200,7 +200,7 @@ def test_model(model_type, df_test, target_col,learning_rate, num_epochs,batch_s
     test_dataset = TimeSeries_TestDataset(df_test, configs.seq_len)
     test_loader = DataLoader(test_dataset, batch_size=batch_sizes, shuffle=False)
 
-    train_dataset = TimeSeriesDataset(df_test, configs.seq_len, configs.pred_len)
+    train_dataset = TimeSeriesDataset(df_test, configs.seq_len, configs.pred_len, configs.seq_range, configs.eval_range)
     train_loader = DataLoader(train_dataset, batch_size=batch_sizes, shuffle=False)
 
     for epoch in range(num_epochs):
