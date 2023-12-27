@@ -218,6 +218,9 @@ class Model(nn.Module):
         self.seq_len = configs.seq_len
         self.label_len = configs.label_len
         self.pred_len = configs.pred_len        
+
+	self.seq_range = configs.seq_range
+	self.eval_range = configs.eval_range
         #e_layers number of timeblock module saved in model "list"
         self.model = nn.ModuleList([TimesBlock(configs)
                                     for _ in range(configs.e_layers)])
@@ -271,5 +274,8 @@ class Model(nn.Module):
     def forward(self, x_enc, mask=None):
         if self.task_name == 'long_term_forecast' or self.task_name == 'short_term_forecast':
                   dec_out = self.forecast(x_enc)
-                  return dec_out[:, -self.pred_len:]  # [B, L, D]
+		  dec_out = dec_out[:, -self.pred_len:, :]  # [B, L, D]
+                  dec_out = dec_out[:, self.seq_range, :] # sequence range
+                  return dec_out[:, :, self.eval_range]  # evaluation range 
+                  
 
