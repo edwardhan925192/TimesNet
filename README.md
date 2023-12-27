@@ -106,6 +106,7 @@ best_param, best_score =  timesnet_opt(model, df_train_, df_validation, target_c
 
 # 3. Ensemble 
 ```markdown
+from seed_ensemble import seed_ensemble
 
 # Seed_ensemble
 # 0. takes optimized params, batch sizes, and so on
