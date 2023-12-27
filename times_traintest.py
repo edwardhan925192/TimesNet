@@ -57,7 +57,7 @@ def train_model(model_type, df_train, df_validation, target_col, learning_rate, 
         
       # ==================== MODEL SELECTION ========================== #
       if model_type == 'timesnet':
-          model = Model_output(configs).to(device)
+          model = Model(configs).to(device)
       if model_type == 'itransformer':
           model = Itransformer(configs).to(device)
 
