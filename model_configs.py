@@ -1,5 +1,14 @@
 import torch
 
+'''
+self.seq_len = selecting range of sequences that user want to evaluate
+
+# SEQ_LEN IS CHOSEN INSIDE THE RANGE OF PRED_LEN
+
+self.eval_range = selecting features that user want to evaluate
+'''
+
+
 class SchedulerConfig:
     def __init__(self):
         # STARTS from lr goes down to eta_min in T_0 
