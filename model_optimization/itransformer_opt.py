@@ -9,14 +9,12 @@ def itransformer_opt(model, df_train_, df_validation, target_col, learning_rate,
       # Define the hyperparameters to be optimized by Optuna
       batch_sizes = trial.suggest_int('batch_sizes', 24,48)
       d_ff = trial.suggest_int('half_d_ff', 9, 12) * 2
-      factor = trial.suggest_int('factor', 4, 6)
-      n_heads = trial.suggest_int('factor', 7, 9)
+      n_heads = trial.suggest_int('n_heads', 7, 9)
       drop_out = trial.suggest_float('dropout', 0.05, 0.25)
 
       # Other hyperparameters can be defined similarly
       configs.d_ff = d_ff
       configs.d_model = d_ff
-      configs.factor = factor
       configs.n_heads = n_heads
       configs.drop_out = drop_out
 
@@ -31,7 +29,7 @@ def itransformer_opt(model, df_train_, df_validation, target_col, learning_rate,
           batch_sizes=batch_sizes,
           configs=configs,
           criterion=criterion,  # or 'mae' based on your requirement
-          schedular_bool=scheduler_bool
+          schedular_bool = scheduler_bool
       )
 
       # Optuna tries to minimize the returned value, so return the metric you want to minimize
