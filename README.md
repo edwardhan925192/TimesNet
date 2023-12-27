@@ -82,7 +82,7 @@ df_validation = val_dfs # Must be list
 df_test = test_dfs # This has to be full datasets
 
 # ======== Parameters ========= # 
-target_col = None # None or single string 
+target_col = None # None or single string # if seq_range, eval_range exist this must be None
 learning_rate = 0.001
 num_epochs = 20
 batch_sizes = 30
