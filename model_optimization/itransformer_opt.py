@@ -31,10 +31,19 @@ def itransformer_opt(model, df_train_, df_validation, target_col, learning_rate,
           criterion=criterion,  # or 'mae' based on your requirement
           schedular_bool = scheduler_bool
       )
-
-      # Optuna tries to minimize the returned value, so return the metric you want to minimize
-      return min(mean_validation_loss_per_epoch)
-
+      # ============ Minimum + Next minimum val ============== #
+      sorted_losses = sorted(mean_validation_loss_per_epoch)
+      if len(sorted_losses) > 1:
+          best_loss = sorted_losses[0]
+          second_best_loss = sorted_losses[1]
+      else:
+          best_loss = second_best_loss = sorted_losses[0]
+  
+      # Calculate the average of the two best losses
+      average_best_losses = (best_loss + second_best_loss) / 2
+  
+      return average_best_losses      
+    
   # Run the Optuna study
   study = optuna.create_study(direction='minimize')
   study.optimize(objective, n_trials=trials)
