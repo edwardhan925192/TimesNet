@@ -135,13 +135,16 @@ config_path = '/content/TimesNet/timesnet109.pkl'
 model_path = '/content/TimesNet/timesnet109.pth'
 
 model_used = 'timesnet'
+target_col = None
 
+# --- config
 with open(config_path, 'rb') as file:
     config_data = pickle.load(file)
 
+# --- model state
 model_dict = torch.load(model_path)
 
-pred = test_model_with_weights(model_used,'single',model_dict,train_ ,'평균기온',1, config_data )
+pred = test_model_with_weights(model_used, model_dict, df_test, target_col,  batch_sizes, configs)
 ```
 
 # References 
